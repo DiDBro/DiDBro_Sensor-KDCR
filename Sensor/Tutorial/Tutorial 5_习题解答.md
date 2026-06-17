@@ -1,7 +1,7 @@
 # Tutorial 5 — 完整习题·解答·做题技巧
 
 > **来源**: Tutorial 5 with Solutions.pdf (35 pages)
-> **对应章节**: Lectures 5–6 (Bentley Ch.7–8)
+> **对应章节**: Lectures 5-6 (Bentley Ch.7-8)
 > **主讲**: Qilong Zhong, MSc, GTIIT
 
 ---
@@ -255,7 +255,7 @@ $$\boxed{e_T = -\nu \cdot e_L = -0.4 \times (-5 \times 10^{-4}) = +2 \times 10^{
 
 ### 🎯 技巧
 
-1. **$\sigma = F/A$**，注意**正负号**（拉伸 +，压缩 −）。
+1. **$\sigma = F/A$**，注意**正负号**（拉伸 +，压缩 -）。
 2. **$e_L = \sigma/E$**（胡克定律）。
 3. **$e_T = -\nu e_L$** — 负号是关键！压缩 → $e_T$ 变正（鼓胀）。
 
