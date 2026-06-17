@@ -10,15 +10,15 @@
 
 ### 1.1 Core Definitions
 
-| Metric | Symbol | Formula | Meaning |
-|--------|--------|---------|---------|
-| **Reliability** | $R(t)$ | — | Probability of normal operation within specified environment & time |
-| **Unreliability** | $F(t)$ | $F = 1 - R$ | Probability of failure |
-| **MTTF** | — | $\sum T_i / N$ | Average lifespan (non-repairable) |
-| **MDT** | — | Total Down Time $/$ Number of Failures | Average repair duration |
-| **MTBF** | — | Total Up Time $/$ Number of Failures | Time between two failures |
-| **Failure rate** | $\bar{\lambda}$ | $1/\text{MTBF}$ | Failures per unit time |
-| **Availability** | $A$ | $\dfrac{\text{MTBF}}{\text{MTBF} + \text{MDT}}$ | Probability system is operational |
+| Metric            | Symbol          | Formula                                         | Meaning                                                             |
+| ----------------- | --------------- | ----------------------------------------------- | ------------------------------------------------------------------- |
+| **Reliability**   | $R(t)$          | —                                               | Probability of normal operation within specified environment & time |
+| **Unreliability** | $F(t)$          | $F = 1 - R$                                     | Probability of failure                                              |
+| **MTTF**          | —               | $\sum T_i / N$                                  | Average lifespan (non-repairable)                                   |
+| **MDT**           | —               | Total Down Time $/$ Number of Failures          | Average repair duration                                             |
+| **MTBF**          | —               | Total Up Time $/$ Number of Failures            | Time between two failures                                           |
+| **Failure rate**  | $\bar{\lambda}$ | $1/\text{MTBF}$                                 | Failures per unit time                                              |
+| **Availability**  | $A$             | $\dfrac{\text{MTBF}}{\text{MTBF} + \text{MDT}}$ | Probability system is operational                                   |
 
 > ✅ **Golden rule**: $R(t) + F(t) = 1$ — equipment is either working or not.
 

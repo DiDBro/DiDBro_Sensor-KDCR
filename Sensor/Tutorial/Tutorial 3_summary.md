@@ -92,19 +92,20 @@ $$\boxed{O(t) = A_i \cdot |G(j\omega)| \cdot \sin(\omega t + \phi)}$$
 
 ### 4.1 First-Order Systems (Thermocouples, RC filters)
 
-| Characteristic | Formula |
-|---------------|---------|
-| **Amplitude Ratio** | $\displaystyle |G(j\omega)| = \frac{K}{\sqrt{1 + (\omega\tau)^2}}$ |
-| **Phase Shift** | $\displaystyle \phi = -\arctan(\omega\tau)$ |
+| Characteristic      | Formula                                                |     |     |
+| ------------------- | ------------------------------------------------------ | --- | --- |
+| **Amplitude Ratio** | $G(j\omega) = \frac{K}{\sqrt{1 + (\omega\tau)^2}}$<br> |     |     |
+| **Phase Shift**     | $\displaystyle \phi = -\arctan(\omega\tau)$            |     |     |
+|                     |                                                        |     |     |
 
 > ✅ **Natural Low-pass Filter**: Low frequencies pass with almost no loss ($|G| \approx 1$); high frequencies are severely attenuated.
 
 ### 4.2 Second-Order Systems (Force transducers, Accelerometers)
 
-| Characteristic | Formula |
-|---------------|---------|
-| **Amplitude Ratio** | $\displaystyle |G(j\omega)| = \frac{K}{\sqrt{\left(1 - \frac{\omega^2}{\omega_n^2}\right)^2 + \left(2\xi\frac{\omega}{\omega_n}\right)^2}}$ |
-| **Phase Shift** | $\displaystyle \phi = -\arctan\left(\frac{2\xi\frac{\omega}{\omega_n}}{1 - \frac{\omega^2}{\omega_n^2}}\right)$ |
+| Characteristic      | Formula                                                                                                                        |     |     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --- | --- |
+| **Amplitude Ratio** | $G(j\omega)= \frac{K}{\sqrt{\left(1 - \frac{\omega^2}{\omega_n^2}\right)^2 + \left(2\xi\frac{\omega}{\omega_n}\right)^2}}$<br> |     |     |
+| **Phase Shift**     | $\displaystyle \phi = -\arctan\left(\frac{2\xi\frac{\omega}{\omega_n}}{1 - \frac{\omega^2}{\omega_n^2}}\right)$                |     |     |
 
 > ⚠️ **Hidden Resonance Crisis**: When $\omega \approx \omega_n$ and $\xi$ is small, **destructive resonance amplification** occurs → severe measurement distortion.
 

@@ -10,9 +10,9 @@
 
 ### 1.1 Core Concept
 
-| State | Description |
-|-------|-------------|
-| **Ideal** | Sensor transmits signal to next stage without any loss |
+| State      | Description                                                                    |
+| ---------- | ------------------------------------------------------------------------------ |
+| **Ideal**  | Sensor transmits signal to next stage without any loss                         |
 | **Actual** | Next-stage instrument draws current → causes voltage drop → **loading effect** |
 
 > ⚠️ Loading effect is a **major cause of systematic error** in measurement systems.
@@ -42,11 +42,11 @@ Uses sliding contact to change resistance → displacement → voltage.
 
 ### 2.2 With Load (Relative displacement $x = d/d_T$)
 
-| Quantity | Formula |
-|----------|---------|
-| **Open-circuit voltage** | $E_{Th} = V_S x$ |
-| **Equivalent internal resistance** | $R_{Th} = R_P \, x(1-x)$ |
-| **Actual load voltage** | $\displaystyle V_L = V_S x \cdot \frac{1}{\frac{R_P}{R_L}x(1-x) + 1}$ |
+| Quantity                           | Formula                                                               |
+| ---------------------------------- | --------------------------------------------------------------------- |
+| **Open-circuit voltage**           | $E_{Th} = V_S x$                                                      |
+| **Equivalent internal resistance** | $R_{Th} = R_P \, x(1-x)$                                              |
+| **Actual load voltage**            | $\displaystyle V_L = V_S x \cdot \frac{1}{\frac{R_P}{R_L}x(1-x) + 1}$ |
 
 ### 2.3 Two Design Constraints
 
