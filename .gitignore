@@ -1,0 +1,14 @@
+# 2. 创建 .gitignore 文件，屏蔽跨平台垃圾文件
+cat > .gitignore << 'EOF'
+# Obsidian 自动生成的配置（跨平台必屏蔽）
+.obsidian/
+
+# Mac 自动生成的垃圾文件
+.DS_Store
+
+# Windows 自动生成的垃圾文件
+Thumbs.db
+desktop.ini
+
+# 代码换行符兼容（自动处理 Windows/Mac 差异）
+* text=auto eol=lf
