@@ -72,11 +72,11 @@ Uses sliding contact to change resistance → displacement → voltage.
 
 ### 3.2 Core Statistics
 
-| Statistic | Formula | Meaning |
-|-----------|---------|---------|
-| **Mean** $\bar{y}$ | $\frac{1}{N}\sum y_i$ | DC offset |
+| Statistic                       | Formula                                   | Meaning               |
+| ------------------------------- | ----------------------------------------- | --------------------- |
+| **Mean** $\bar{y}$              | $\frac{1}{N}\sum y_i$                     | DC offset             |
 | **Standard deviation** $\sigma$ | $\sqrt{\frac{1}{N}\sum(y_i - \bar{y})^2}$ | Fluctuation from mean |
-| **RMS** $y_{rms}$ | $\sqrt{\frac{1}{N}\sum y_i^2}$ | Signal energy |
+| **RMS** $y_{rms}$               | $\sqrt{\frac{1}{N}\sum y_i^2}$            | Signal energy         |
 
 > ✅ **Special case**: When mean = 0, $\boxed{\sigma = y_{rms}}$.
 
@@ -84,7 +84,7 @@ Uses sliding contact to change resistance → displacement → voltage.
 
 $$\boxed{W_{TOT} = y_{rms}^2 = \bar{y}^2 + \sigma^2}$$
 
-> Total Power = DC Power + AC Power
+> Total Power = ==DC Power + AC Power==
 
 ---
 
@@ -98,7 +98,7 @@ $$\boxed{W_{TOT} = y_{rms}^2 = \bar{y}^2 + \sigma^2}$$
 
 ### 4.2 Discrete ACF Formula
 
-$$\boxed{R_{yy}(m\Delta T) = \frac{1}{N}\sum_{i=1}^{N} y_i \, y_{i-m}}$$
+$$==\boxed{R_{yy}(m\Delta T) = \frac{1}{N}\sum_{i=1}^{N} y_i \, y_{i-m}}==$$
 
 | Symbol | Meaning |
 |--------|---------|
@@ -245,17 +245,17 @@ If $f_s < 2f_{max}$ → high-frequency signals **disguise themselves** as low-fr
 
 ## 10. Summary Table
 
-| Concept | Key Formula / Method |
-|---------|---------------------|
-| Loading effect | $V_L = E_{Th} \cdot Z_L/(Z_{Th} + Z_L)$; require $Z_L \gg Z_{Th}$ |
-| Potentiometer non-linearity | $\hat{N} \approx 15 \frac{R_P}{R_L}\%$ |
-| Total signal power | $W_{TOT} = y_{rms}^2 = \bar{y}^2 + \sigma^2$ |
-| Autocorrelation | $R_{yy}(m\Delta T) = \frac{1}{N}\sum y_i y_{i-m}$ |
-| Noise power | $W_N = \phi \times f_C$ |
-| SNR | $SNR_{dB} = 10\log_{10}(W_S/W_N)$ |
-| Common-mode rejection | $V_{CM\_error} = V_{CM}/CMRR$ |
-| Averaging noise reduction | $\sigma_{AV} = \sigma/\sqrt{p}$ |
-| Nyquist theorem | $f_s > 2f_{max}$ |
+| Concept                     | Key Formula / Method                                              |
+| --------------------------- | ----------------------------------------------------------------- |
+| Loading effect              | $V_L = E_{Th} \cdot Z_L/(Z_{Th} + Z_L)$; require $Z_L \gg Z_{Th}$ |
+| Potentiometer non-linearity | $\hat{N} \approx 15 \frac{R_P}{R_L}\%$                            |
+| Total signal power          | $W_{TOT} = y_{rms}^2 = \bar{y}^2 + \sigma^2$                      |
+| Autocorrelation             | $R_{yy}(m\Delta T) = \frac{1}{N}\sum y_i y_{i-m}$                 |
+| Noise power                 | $W_N = \phi \times f_C$                                           |
+| SNR                         | $SNR_{dB} = 10\log_{10}(W_S/W_N)$                                 |
+| Common-mode rejection       | $V_{CM\_error} = V_{CM}/CMRR$                                     |
+| Averaging noise reduction   | $\sigma_{AV} = \sigma/\sqrt{p}$                                   |
+| Nyquist theorem             | $f_s > 2f_{max}$                                                  |
 
 ---
 
