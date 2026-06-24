@@ -1,8 +1,6 @@
-\documentclass[12pt,a4paper]{article}
+\documentclass[12pt,a4paper]{ctexart}
 
 % ── Packages ──────────────────────────────────────────────────
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{bm}
 \usepackage{geometry}
@@ -38,12 +36,6 @@
   stringstyle=\color{red},
 }
 
-% ── Theorem environments ──────────────────────────────────────
-\newtheorem{step}{Step}
-\newtheorem{remark}{Remark}
-\theoremstyle{definition}
-\newtheorem{definition}{Definition}
-
 % ── Colored boxes ─────────────────────────────────────────────
 \newtcolorbox{conceptbox}[1][]{
   colback=blue!5!white, colframe=blue!75!black,
@@ -65,17 +57,17 @@
 % ── Header / Footer ───────────────────────────────────────────
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\textbf{Nico\_Robo\_control --- Homework 7}}
+\fancyhead[L]{\textbf{Nico\_Robo\_control --- 作业 7}}
 \fancyhead[R]{2026}
 \fancyfoot[C]{\thepage}
 
 % ── Title ─────────────────────────────────────────────────────
 \title{
-  \textbf{Homework 7: Computed Torque Control of a 4-DOF Manipulator}\\[5pt]
-  \large Step-by-Step Solution Guide
+  \textbf{作业 7：四自由度机械臂的计算力矩控制}\\[5pt]
+  \large 逐步求解指南
 }
 \author{Nico\_Robo\_control}
-\date{June 2026}
+\date{2026 年 6 月}
 
 \begin{document}
 \maketitle
@@ -83,19 +75,19 @@
 \newpage
 
 % ===================================================================
-\section{Problem Overview}
+\section{问题概述}
 % ===================================================================
 
-We consider a \textbf{four-degree-of-freedom} robotic manipulator with three revolute joints (joints 1--3) and one prismatic joint (joint 4), exactly as described in \textbf{MLS Example 4.4} (p.~177). The manipulator is shown schematically in Figure~\ref{fig:manipulator} in its reference (zero) configuration.
+我们考虑一个\ \textbf{四自由度}\ 机械臂，包含三个转动关节（关节 1--3）和一个移动关节（关节 4），与 \textbf{MLS 例 4.4}（第 177 页）中描述的完全一致。图~\ref{fig:manipulator}\ 展示了该机械臂在参考（零位）构型下的示意图。
 
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[scale=1.2,>=stealth]
-  % Base
+  % 基座
   \fill[gray!50] (-0.5,0) rectangle (0.5,-0.3);
   \draw[thick] (-0.5,0) -- (0.5,0);
 
-  % Ground line
+  % 地面线
   \draw[thin] (-1,-0.3) -- (1,-0.3);
   \draw[thin] (-1,-0.3) -- (-1.2,-0.5);
   \draw[thin] (-0.5,-0.3) -- (-0.7,-0.5);
@@ -103,77 +95,74 @@ We consider a \textbf{four-degree-of-freedom} robotic manipulator with three rev
   \draw[thin] (0.5,-0.3) -- (0.3,-0.5);
   \draw[thin] (1,-0.3) -- (0.8,-0.5);
 
-  % Joint 1 (revolute, origin)
+  % 关节 1 (转动副, 原点)
   \draw[fill=blue!30] (0,0) circle (0.15);
   \node at (0,0.35) {$\theta_1$};
   \draw[->,red,thick] (0.3,0) arc (0:60:0.3);
 
-  % Link 1 (horizontal)
+  % 连杆 1 (水平)
   \draw[thick,fill=gray!20] (0,0) rectangle (4,0.2);
-  \node at (2,0.5) {Link 1 ($l_1=0.8$)};
+  \node at (2,0.5) {连杆 1 ($l_1=0.8$)};
 
-  % Joint 2 (revolute)
+  % 关节 2 (转动副)
   \draw[fill=blue!30] (4,0.1) circle (0.15);
   \node at (4,0.45) {$\theta_2$};
   \draw[->,red,thick] (4.3,0.1) arc (0:45:0.3);
 
-  % Link 2 (horizontal)
+  % 连杆 2 (水平)
   \draw[thick,fill=gray!20] (4,0.1) rectangle (7,0.3);
-  \node at (5.5,0.6) {Link 2 ($l_2=0.6$)};
+  \node at (5.5,0.6) {连杆 2 ($l_2=0.6$)};
 
-  % Joint 3 (revolute)
+  % 关节 3 (转动副)
   \draw[fill=blue!30] (7,0.2) circle (0.15);
   \node at (7,0.55) {$\theta_3$};
   \draw[->,red,thick] (7.3,0.2) arc (0:60:0.3);
 
-  % Link 3 + Joint 4 (prismatic, vertical)
+  % 连杆 3 + 关节 4 (移动副，竖直)
   \draw[thick,fill=gray!20] (6.9,0.35) rectangle (7.1,1.5);
-  \node at (7.5,0.9) {$d_4$ (prismatic)};
+  \node at (7.5,0.9) {$d_4$ (移动)};
   \draw[<->,thick] (7.3,0.35) -- (7.3,1.5);
 
-  % End effector
+  % 末端执行器
   \draw[fill=red!50] (6.8,1.5) rectangle (7.2,1.7);
 
-  % Coordinate frame
+  % 坐标系
   \draw[->,thick] (0,0) -- (0.6,0) node[right] {$x$};
   \draw[->,thick] (0,0) -- (0,0.6) node[above] {$y$};
-  \node at (-0.2,-0.2) {$z$ (out)};
+  \node at (-0.2,-0.2) {$z$ (向外)};
   \node at (-0.5,0) {$\{S\}$};
-
-  % Labels
-  \node at (7.8,0.1) {$\circlearrowright$};
 \end{tikzpicture}
-\caption{Schematic of the 4-DOF manipulator (3R + 1P) in its reference configuration. All three revolute joint axes are parallel to the $z$-axis; the prismatic joint translates along $z$.}
+\caption{四自由度机械臂（3R + 1P）参考构型示意图。三个转动关节轴线均平行于 $z$ 轴；移动关节沿 $z$ 方向平移。}
 \label{fig:manipulator}
 \end{figure}
 
-\subsection{Assignment Tasks}
+\subsection{作业任务}
 
 \begin{enumerate}[label=\textbf{(\alph*)}, leftmargin=*]
-  \item Build a \textbf{SIMULINK model} of a \textbf{computed torque controller} tracking a desired joint trajectory $\bm{\theta}_d(t)$ in the form of a \textbf{rounded step function}. Desired final values:
+  \item 构建 \textbf{SIMULINK 计算力矩控制器}模型，跟踪\ \textbf{圆角阶跃函数}\ 形式的期望关节轨迹 $\bm{\theta}_d(t)$。期望终值：
   \[
   \theta_{d1}\to 2\,\text{rad},\quad
   \theta_{d2}\to 1\,\text{rad},\quad
   \theta_{d3}\to 0.5\,\text{rad},\quad
   d_{d4}\to 0.08\,\text{m}.
   \]
-  \item Study the \textbf{tracking robustness} of computed torque control by perturbing the plant's inertia parameters by 5--10\% while keeping the controller at nominal values.
-  \item Implement and evaluate a \textbf{PD control} scheme for comparison.
-  \item Investigate \textbf{torque saturation} with limits $|\bm{\tau}| \le [6000,\;2000,\;1000,\;100]^\top$\,Nm (or N).
+  \item 研究计算力矩控制的\ \textbf{跟踪鲁棒性}：将\ \textbf{被控对象}\ 的惯性参数扰动 5\%--10\%，同时保持\ \textbf{控制器}\ 参数为标称值。
+  \item 实现并评估 \textbf{PD 控制}\ 方案，与计算力矩控制进行对比。
+  \item 研究\ \textbf{力矩饱和}\ 效应：限制 $|\bm{\tau}| \le [6000,\;2000,\;1000,\;100]^\top$\,Nm（或 N）。
 \end{enumerate}
 
 % ===================================================================
-\section{Kinematic Modeling}
+\section{运动学建模}
 % ===================================================================
 
-\subsection{Joint Twists (Screw Axes)}
+\subsection{关节旋量（运动螺旋）}
 
-Using the \textbf{product of exponentials (PoE)} formulation, each joint is represented by a twist (screw axis) $\bm{\xi}_i \in \mathbb{R}^6$ expressed in the spatial frame $\{S\}$.
+采用\ \textbf{指数积（PoE）}\ 方法，每个关节用空间坐标系 $\{S\}$ 下的\ \textbf{旋量（screw）} $\bm{\xi}_i \in \mathbb{R}^6$ 表示。
 
-For a \textbf{revolute} joint with axis $\bm{\omega}$ and a point $\mathbf{q}$ on the axis:
+对于轴线为 $\bm{\omega}$、轴上一点为 $\mathbf{q}$ 的\ \textbf{转动副}：
 \[
 \bm{\xi}_i = \begin{bmatrix} -\hat{\bm{\omega}}_i\,\mathbf{q}_i \\[2pt] \bm{\omega}_i \end{bmatrix}
-\qquad\text{where}\qquad
+\qquad\text{其中}\qquad
 \text{hat}(\mathbf{v}) = \begin{bmatrix}
 0 & -v_3 & v_2 \\
 v_3 & 0 & -v_1 \\
@@ -181,30 +170,30 @@ v_3 & 0 & -v_1 \\
 \end{bmatrix}.
 \]
 
-For a \textbf{prismatic} joint with translation direction $\mathbf{v}$:
+对于平移方向为 $\mathbf{v}$ 的\ \textbf{移动副}：
 \[
 \bm{\xi}_i = \begin{bmatrix} \mathbf{v}_i \\[2pt] \mathbf{0}_{3\times 1} \end{bmatrix}.
 \]
 
-\begin{conceptbox}[Joint Twists $\bm{\xi}_i$]
+\begin{conceptbox}[关节旋量 $\bm{\xi}_i$]
 \begin{align*}
-\text{Joint 1 (R, about $z$ at origin):}\quad
+\text{关节 1 (R, 绕 $z$ 轴, 过原点):}\quad
   \bm{\omega}_1 &= \begin{bmatrix}0\\0\\1\end{bmatrix},\;
   \mathbf{q}_1 = \begin{bmatrix}0\\0\\0\end{bmatrix}
   \;\Rightarrow\; \bm{\xi}_1 = \begin{bmatrix}0\\0\\0\\0\\0\\1\end{bmatrix} \\[5pt]
-\text{Joint 2 (R, about $z$ at $[0,l_1,0]^\top$):}\quad
+\text{关节 2 (R, 绕 $z$ 轴, 过 $[0,l_1,0]^\top$):}\quad
   \bm{\omega}_2 &= \begin{bmatrix}0\\0\\1\end{bmatrix},\;
   \mathbf{q}_2 = \begin{bmatrix}0\\l_1\\0\end{bmatrix}
   \;\Rightarrow\; \bm{\xi}_2 = \begin{bmatrix}l_1\\0\\0\\0\\0\\1\end{bmatrix} \\[5pt]
-\text{Joint 3 (R, about $z$ at $[0,l_1+l_2,0]^\top$):}\quad
+\text{关节 3 (R, 绕 $z$ 轴, 过 $[0,l_1+l_2,0]^\top$):}\quad
   \bm{\omega}_3 &= \begin{bmatrix}0\\0\\1\end{bmatrix},\;
   \mathbf{q}_3 = \begin{bmatrix}0\\l_1+l_2\\0\end{bmatrix}
   \;\Rightarrow\; \bm{\xi}_3 = \begin{bmatrix}l_1+l_2\\0\\0\\0\\0\\1\end{bmatrix} \\[5pt]
-\text{Joint 4 (P, along $z$):}\quad
+\text{关节 4 (P, 沿 $z$ 轴):}\quad
   \mathbf{v}_4 &= \begin{bmatrix}0\\0\\1\end{bmatrix}
   \;\Rightarrow\; \bm{\xi}_4 = \begin{bmatrix}0\\0\\1\\0\\0\\0\end{bmatrix}
 \end{align*}
-With numerical values $l_1 = 0.8$\,m, $l_2 = 0.6$\,m:
+代入数值 $l_1 = 0.8$\,m, $l_2 = 0.6$\,m：
 \[
 \bm{\xi}_1 = \begin{bmatrix}0\\0\\0\\0\\0\\1\end{bmatrix},\quad
 \bm{\xi}_2 = \begin{bmatrix}0.8\\0\\0\\0\\0\\1\end{bmatrix},\quad
@@ -213,19 +202,19 @@ With numerical values $l_1 = 0.8$\,m, $l_2 = 0.6$\,m:
 \]
 \end{conceptbox}
 
-\subsection{Forward Kinematics via Product of Exponentials}
+\subsection{指数积正运动学}
 
-The homogeneous transformation from the spatial frame to link $i$ is:
+从空间坐标系到连杆 $i$ 的齐次变换为：
 \[
 \mathbf{g}_{sl_i}(\bm{\theta}) = e^{\hat{\bm{\xi}}_1\theta_1}\,e^{\hat{\bm{\xi}}_2\theta_2}\cdots e^{\hat{\bm{\xi}}_i\theta_i}\;\mathbf{g}_{sl_i}(0)
 \]
-where $\mathbf{g}_{sl_i}(0)$ is the reference configuration of link $i$, and $\hat{\bm{\xi}}$ is the $4\times4$ matrix representation of twist $\bm{\xi}$ in $\mathfrak{se}(3)$:
+其中 $\mathbf{g}_{sl_i}(0)$ 是连杆 $i$ 在参考构型下的位姿，$\hat{\bm{\xi}} \in \mathfrak{se}(3)$ 是旋量 $\bm{\xi}$ 的 $4\times4$ 矩阵表示：
 \[
 \hat{\bm{\xi}} = \begin{bmatrix} \hat{\bm{\omega}} & \mathbf{v} \\ \mathbf{0} & 0 \end{bmatrix}.
 \]
 
-\begin{stepbox}[Reference Configurations $\mathbf{g}_{sl_i}(0)$]
-The reference (zero-angle) link frames are given by pure translations (no rotation):
+\begin{stepbox}[参考位形 $\mathbf{g}_{sl_i}(0)$]
+各连杆在零位时的参考坐标系为纯平移（无旋转）：
 \begin{align*}
 \mathbf{g}_{sl_1}(0) &= \begin{bmatrix} \mathbf{I} & [0,\; r_1,\; 0.3]^\top \\ \mathbf{0} & 1 \end{bmatrix}, \quad r_1 = l_1/2 = 0.4 \\[3pt]
 \mathbf{g}_{sl_2}(0) &= \begin{bmatrix} \mathbf{I} & [0,\; l_1+r_2,\; 0.4]^\top \\ \mathbf{0} & 1 \end{bmatrix}, \quad r_2 = l_2/2 = 0.3 \\[3pt]
@@ -234,29 +223,29 @@ The reference (zero-angle) link frames are given by pure translations (no rotati
 \end{align*}
 \end{stepbox}
 
-\subsection{\texorpdfstring{The $6\times 6$ Adjoint Transformation}{The 6x6 Adjoint Transformation}}
+\subsection{6×6 伴随变换}
 
-The adjoint map $\mathrm{Ad}_{\mathbf{g}} \in \mathbb{R}^{6\times 6}$ transforms twists between frames. For $\mathbf{g}=[\mathbf{R},\,\mathbf{p};\;\mathbf{0},\,1]$:
+伴随映射 $\mathrm{Ad}_{\mathbf{g}} \in \mathbb{R}^{6\times 6}$ 将旋量在不同坐标系间变换。对于 $\mathbf{g}=[\mathbf{R},\,\mathbf{p};\;\mathbf{0},\,1]$：
 \[
 \mathrm{Ad}_{\mathbf{g}} = \begin{bmatrix}
 \mathbf{R} & \hat{\mathbf{p}}\mathbf{R} \\
 \mathbf{0} & \mathbf{R}
 \end{bmatrix}
 \]
-This is implemented in the code as \texttt{adjmg.m} and \texttt{MCNsim.m} (lines 160--172).
+该公式在代码中由 \texttt{adjmg.m} 和 \texttt{MCNsim.m}（第 160--172 行）实现。
 
 % ===================================================================
-\section{Dynamic Modeling}
+\section{动力学建模}
 % ===================================================================
 
-\subsection{Link Inertial Parameters}
+\subsection{连杆惯性参数}
 
 \begin{table}[H]
 \centering
-\caption{Link Masses and Inertias}
+\caption{各连杆质量和转动惯量}
 \begin{tabular}{cccccc}
 \toprule
-Link & Mass (kg) & $I_{xx}$ (kg·m$^2$) & $I_{yy}$ (kg·m$^2$) & $I_{zz}$ (kg·m$^2$) \\
+连杆 & 质量 (kg) & $I_{xx}$ (kg·m$^2$) & $I_{yy}$ (kg·m$^2$) & $I_{zz}$ (kg·m$^2$) \\
 \midrule
 1 & $m_1 = 50$   & $m_1 l_1^2/12 = 2.667$ & $0.05 I_{x1}=0.133$ & $I_{x1}=2.667$ \\
 2 & $m_2 = 30$   & $m_2 l_2^2/12 = 0.900$ & $0.05 I_{x2}=0.045$ & $I_{x2}=0.900$ \\
@@ -266,7 +255,7 @@ Link & Mass (kg) & $I_{xx}$ (kg·m$^2$) & $I_{yy}$ (kg·m$^2$) & $I_{zz}$ (kg·m
 \end{tabular}
 \end{table}
 
-The \textbf{generalized inertia matrix} of link $i$ in its own body frame is the $6\times 6$ matrix:
+连杆 $i$ 在其自身连体坐标系下的\ \textbf{广义惯性矩阵}\ 为 $6\times 6$ 矩阵：
 \[
 \hat{\mathbf{M}}_i = \begin{bmatrix}
 m_i\mathbf{I}_3 & \mathbf{0} \\
@@ -274,37 +263,37 @@ m_i\mathbf{I}_3 & \mathbf{0} \\
 \end{bmatrix},\qquad \mathbf{I}_i = \mathrm{diag}(I_{xi},\,I_{yi},\,I_{zi}).
 \]
 
-\subsection{Spatial Inertia Matrices}
+\subsection{空间惯性矩阵}
 
-Each body inertia is transformed to the spatial frame $\{S\}$ using the adjoint transformation:
+每个连体惯性矩阵通过伴随变换转换到空间坐标系 $\{S\}$：
 \[
 \hat{\mathbf{M}}_i^s = \mathrm{Ad}_{\mathbf{g}_{sl_i}(0)}^{-\top}\;\hat{\mathbf{M}}_i\;
 \mathrm{Ad}_{\mathbf{g}_{sl_i}(0)}^{-1}.
 \]
-This is stored in the 3D array \texttt{calMp(:,:,i)}.
+结果存储在三维数组 \texttt{calMp(:,:,i)} 中。
 
-\subsection{Equations of Motion}
+\subsection{运动方程}
 
-The manipulator dynamics in standard form:
+机械臂动力学的标准形式：
 \[
 \boxed{\mathbf{M}(\bm{\theta})\,\ddot{\bm{\theta}} + \mathbf{C}(\bm{\theta},\dot{\bm{\theta}})\,\dot{\bm{\theta}} + \mathbf{N}(\bm{\theta},\dot{\bm{\theta}}) = \bm{\tau}}
 \]
-where:
+其中：
 \begin{itemize}
-  \item $\mathbf{M}(\bm{\theta}) \in \mathbb{R}^{4\times 4}$ --- \textbf{mass/inertia matrix} (symmetric, positive definite)
-  \item $\mathbf{C}(\bm{\theta},\dot{\bm{\theta}}) \in \mathbb{R}^{4\times 4}$ --- \textbf{Coriolis/centrifugal matrix}
-  \item $\mathbf{N}(\bm{\theta},\dot{\bm{\theta}}) \in \mathbb{R}^{4}$ --- \textbf{gravity + friction vector}
-  \item $\bm{\tau} \in \mathbb{R}^{4}$ --- \textbf{joint torques/forces}
+  \item $\mathbf{M}(\bm{\theta}) \in \mathbb{R}^{4\times 4}$ --- \textbf{质量/惯性矩阵}（对称正定）
+  \item $\mathbf{C}(\bm{\theta},\dot{\bm{\theta}}) \in \mathbb{R}^{4\times 4}$ --- \textbf{科氏力/离心力矩阵}
+  \item $\mathbf{N}(\bm{\theta},\dot{\bm{\theta}}) \in \mathbb{R}^{4}$ --- \textbf{重力 + 摩擦力向量}
+  \item $\bm{\tau} \in \mathbb{R}^{4}$ --- \textbf{关节力矩/力}
 \end{itemize}
 
-\subsection{\texorpdfstring{Computation of $\mathbf{M}(\bm{\theta})$ via Screw Theory}{Computation of M(theta) via Screw Theory}}
+\subsection{\texorpdfstring{旋量法计算 $\mathbf{M}(\bm{\theta})$}{旋量法计算 M(theta)}}
 
-Using the \textbf{Christoffel symbol} approach and the spatial inertia formulation:
+采用\ \textbf{Christoffel 符号}\ 方法和空间惯性矩阵形式：
 \[
 M_{ij}(\bm{\theta}) = \sum_{l = \max(i,j)}^{n} \bm{\xi}_i^\top\,\mathbf{A}_{li}^\top\,
 \hat{\mathbf{M}}_l^s\,\mathbf{A}_{lj}\,\bm{\xi}_j
 \]
-where $\mathbf{A}_{ij} \in \mathbb{R}^{6\times 6}$ are the adjoint maps between joints:
+其中 $\mathbf{A}_{ij} \in \mathbb{R}^{6\times 6}$ 是关节间的伴随映射：
 \[
 \mathbf{A}_{ij} = \begin{cases}
 \mathrm{Ad}^{-1}_{\mathbf{g}_{ji}}, & i > j \\[3pt]
@@ -314,9 +303,9 @@ where $\mathbf{A}_{ij} \in \mathbb{R}^{6\times 6}$ are the adjoint maps between 
 \mathbf{g}_{ji} = \mathbf{g}_j^{-1}\,\mathbf{g}_i.
 \]
 
-\subsection{\texorpdfstring{Computation of $\mathbf{C}(\bm{\theta},\dot{\bm{\theta}})$}{Computation of C(theta, dtheta)}}
+\subsection{\texorpdfstring{计算科氏矩阵 $\mathbf{C}(\bm{\theta},\dot{\bm{\theta}})$}{计算科氏矩阵 C(theta, dtheta)}}
 
-The Coriolis matrix is obtained from the partial derivatives of $\mathbf{M}$ via \textbf{Christoffel symbols of the first kind}:
+科氏矩阵通过 $\mathbf{M}$ 的偏导数利用\ \textbf{第一类 Christoffel 符号}\ 求得：
 \[
 C_{ij} = \sum_{k=1}^{n} \Gamma_{ijk}\,\dot{\theta}_k,\qquad
 \Gamma_{ijk} = \frac{1}{2}\left(
@@ -326,7 +315,7 @@ C_{ij} = \sum_{k=1}^{n} \Gamma_{ijk}\,\dot{\theta}_k,\qquad
 \right).
 \]
 
-The partial derivative $\partial M_{ij}/\partial\theta_k$ is computed analytically:
+偏导数 $\partial M_{ij}/\partial\theta_k$ 的解析计算公式为：
 \begin{align*}
 \frac{\partial M_{ij}}{\partial\theta_k} = \sum_{l=\max(i,j)}^{n}
 \Bigl[
@@ -336,7 +325,7 @@ The partial derivative $\partial M_{ij}/\partial\theta_k$ is computed analytical
 \mathbf{A}_{lk}\,\bigl(\mathrm{ad}_{\mathbf{A}_{kj}\bm{\xi}_j}\,\bm{\xi}_k\bigr)
 \Bigr],
 \end{align*}
-valid for $k \le l$, and zero otherwise. Here $\mathrm{ad}_{\bm{\xi}}$ is the $6\times 6$ Lie bracket (adjoint) matrix:
+该式在 $k \le l$ 时成立，否则为零。其中 $\mathrm{ad}_{\bm{\xi}}$ 是 $6\times 6$ 的李括号（伴随）矩阵：
 \[
 \mathrm{ad}_{\bm{\xi}} = \begin{bmatrix}
 \hat{\bm{\omega}} & \hat{\mathbf{v}} \\
@@ -344,48 +333,48 @@ valid for $k \le l$, and zero otherwise. Here $\mathrm{ad}_{\bm{\xi}}$ is the $6
 \end{bmatrix}.
 \]
 
-\subsection{\texorpdfstring{Computation of $\mathbf{N}(\bm{\theta},\dot{\bm{\theta}})$}{Computation of N(theta, dtheta)}}
+\subsection{\texorpdfstring{计算 $\mathbf{N}(\bm{\theta},\dot{\bm{\theta}})$}{计算 N(theta, dtheta)}}
 
-The vector $\mathbf{N}$ consists of two parts:
+$\mathbf{N}$ 向量由两部分组成：
 
-\subsubsection*{1. Gravity Term}
-The gradient of the gravitational potential energy:
+\subsubsection*{1. 重力项}
+重力势能的梯度：
 \[
 \frac{\partial V}{\partial\theta_i} = -\sum_{l=i}^{n} \bm{\xi}_i^\top\,
 \mathrm{Ad}_{\mathbf{g}_{0l}}^{-\top}\,\hat{\mathbf{M}}_l^s\,
 \mathbf{G}_0
 \]
-where $\mathbf{G}_0 \in \mathbb{R}^6$ is the \textbf{gravity twist} in the spatial frame:
+其中 $\mathbf{G}_0 \in \mathbb{R}^6$ 是空间坐标系下的\ \textbf{重力旋量}：
 \[
 \mathbf{G}_0 = \begin{bmatrix} -\mathbf{g}_{\text{accel}} \\ \mathbf{0} \end{bmatrix}
 = \begin{bmatrix} 0\\0\\9.81\\0\\0\\0 \end{bmatrix}.
 \]
-(The sign follows the code convention: $-\mathbf{g}_{\text{accel}}$ in the linear part.)
+（符号遵循代码约定：线速度部分取 $-\mathbf{g}_{\text{accel}}$。）
 
-\subsubsection*{2. Viscous Friction Term}
+\subsubsection*{2. 黏性摩擦项}
 \[
 N_{\text{fric},i} = \beta_i\,\dot{\theta}_i
 \]
-with $\bm{\beta} = [1.0,\;0.5,\;0.4,\;1.0]$ (Nm·s/rad for revolute, N·s/m for prismatic).
+其中 $\bm{\beta} = [1.0,\;0.5,\;0.4,\;1.0]$（转动关节单位为 Nm·s/rad，移动关节为 N·s/m）。
 
-\subsubsection*{Total:}
+\subsubsection*{总计：}
 \[
 \mathbf{N}(\bm{\theta},\dot{\bm{\theta}}) = -\nabla_\theta V(\bm{\theta}) + \mathrm{diag}(\bm{\beta})\,\dot{\bm{\theta}}.
 \]
 
-\subsection{Code Implementation}
+\subsection{代码实现}
 
-The dynamics computation is implemented in \texttt{MCN.m} (and its self-contained variant \texttt{MCNsim.m} for Simulink). The \texttt{MCNsim.m} file is used inside Simulink MATLAB Function blocks because it contains \texttt{adjmg} as a local nested function (no external dependencies).
+动力学计算在 \texttt{MCN.m} 中实现（其自包含版本 \texttt{MCNsim.m} 用于 Simulink）。\texttt{MCNsim.m} 文件在 Simulink MATLAB Function 模块中使用，因为它将 \texttt{adjmg} 作为局部嵌套函数（无外部依赖）。
 
-\begin{lstlisting}[language=Matlab, caption={MCNsim.m --- Dynamics computation (self-contained for Simulink)}]
+\begin{lstlisting}[language=Matlab, caption={MCNsim.m --- 动力学计算（用于 Simulink 的自包含版本）}]
 function [Ms, Cs, Ns] = MCNsim(xi, calMp, lM, beta, m4g, theta, dtheta)
     n = length(theta);
-    % Step 1: FK --- compute all g_{0i}
+    % 步骤 1：正运动学 --- 计算所有 g_{0i}
     g = cell(1, n+1); g{1} = eye(4);
     for i = 1:n
         g{i+1} = g{i} * expm(hat_se3(xi(:,i)) * theta(i));
     end
-    % Step 2: Adj maps A_{ij}
+    % 步骤 2：伴随映射 A_{ij}
     A = cell(n,n);
     for i = 1:n, for j = 1:n
         if i > j,      A{i,j} = inv(adjmg(inv(g{j+1}) * g{i+1}));
@@ -393,7 +382,7 @@ function [Ms, Cs, Ns] = MCNsim(xi, calMp, lM, beta, m4g, theta, dtheta)
         else,          A{i,j} = zeros(6);
         end
     end, end
-    % Step 3: M matrix
+    % 步骤 3：质量矩阵 M
     for i = 1:n, for j = 1:n
         M_ij = 0;
         for l = lM(i,j):n
@@ -401,7 +390,7 @@ function [Ms, Cs, Ns] = MCNsim(xi, calMp, lM, beta, m4g, theta, dtheta)
         end
         Ms(i,j) = M_ij;
     end, end
-    % Step 4: C matrix via Christoffel symbols
+    % 步骤 4：通过 Christoffel 符号计算科氏矩阵 C
     for i = 1:n, for j = 1:n
         C_ij = 0;
         for k = 1:n
@@ -409,19 +398,19 @@ function [Ms, Cs, Ns] = MCNsim(xi, calMp, lM, beta, m4g, theta, dtheta)
         end
         Cs(i,j) = C_ij;
     end, end
-    % Step 5: N vector (gravity + friction)
+    % 步骤 5：计算 N（重力 + 摩擦）
     grad_V = compute_gravity_potential_gradient(xi, calMp, g, n);
     Ns = -grad_V + beta(:) .* dtheta(:);
 end
 \end{lstlisting}
 
-\subsection{\texorpdfstring{The Coupling Matrix $l_M$}{The Coupling Matrix lM}}
+\subsection{\texorpdfstring{耦合矩阵 $l_M$}{耦合矩阵 lM}}
 
-The \texttt{lM} matrix encodes which links contribute to each $(i,j)$ pair of the mass matrix:
+矩阵 \texttt{lM} 编码了哪些连杆对 $(i,j)$ 对质量矩阵有贡献：
 \[
 l_M(i,j) = \max(i,j).
 \]
-For $n=4$:
+对于 $n=4$：
 \[
 l_M = \begin{bmatrix}
 1 & 2 & 3 & 4 \\
@@ -432,49 +421,49 @@ l_M = \begin{bmatrix}
 \]
 
 % ===================================================================
-\section{Part (a): Computed Torque Controller}
+\section{第 (a) 部分：计算力矩控制器}
 % ===================================================================
 
-\subsection{Control Law}
+\subsection{控制律}
 
-The \textbf{computed torque} (feedback linearization) controller applies:
+\textbf{计算力矩}\ （反馈线性化）控制器施加：
 \[
 \boxed{\bm{\tau} = \mathbf{M}(\bm{\theta})\,\ddot{\bm{\theta}}^* + \mathbf{C}(\bm{\theta},\dot{\bm{\theta}})\,\dot{\bm{\theta}} + \mathbf{N}(\bm{\theta},\dot{\bm{\theta}})}
 \]
-where $\ddot{\bm{\theta}}^*$ is a virtual input chosen to achieve tracking. Substituting into the dynamics yields the \textbf{double-integrator} error dynamics:
+其中 $\ddot{\bm{\theta}}^*$ 是为实现跟踪而选择的虚拟输入。代入动力学方程可得\ \textbf{双积分}\ 误差动力学：
 \[
 \ddot{\bm{\theta}} = \ddot{\bm{\theta}}^*.
 \]
 
-A \textbf{PD+feedforward} law for $\ddot{\bm{\theta}}^*$ is:
+$\ddot{\bm{\theta}}^*$ 的\ \textbf{PD + 前馈}\ 控制律为：
 \[
 \boxed{\ddot{\bm{\theta}}^* = \ddot{\bm{\theta}}_d + \mathbf{K}_v\bigl(\dot{\bm{\theta}}_d - \dot{\bm{\theta}}\bigr) + \mathbf{K}_p\bigl(\bm{\theta}_d - \bm{\theta}\bigr)}
 \]
-where $\mathbf{K}_p = \mathrm{diag}(k_{p1},\ldots,k_{p4})$ and $\mathbf{K}_v = \mathrm{diag}(k_{v1},\ldots,k_{v4})$ are positive definite gain matrices.
+其中 $\mathbf{K}_p = \mathrm{diag}(k_{p1},\ldots,k_{p4})$ 和 $\mathbf{K}_v = \mathrm{diag}(k_{v1},\ldots,k_{v4})$ 为正定增益矩阵。
 
-This yields the \textbf{linear error dynamics}:
+由此可得\ \textbf{线性误差动力学}：
 \[
 \ddot{\mathbf{e}} + \mathbf{K}_v\,\dot{\mathbf{e}} + \mathbf{K}_p\,\mathbf{e} = \mathbf{0},
 \qquad \mathbf{e}(t) = \bm{\theta}_d(t) - \bm{\theta}(t).
 \]
 
-\subsection{Choosing Gains}
+\subsection{增益选取}
 
-For a desired closed-loop natural frequency $\omega_n$ and damping ratio $\zeta$:
+对于期望的闭环固有频率 $\omega_n$ 和阻尼比 $\zeta$：
 \[
 k_{pi} = \omega_{n,i}^2,\qquad k_{vi} = 2\zeta_i\omega_{n,i}.
 \]
 
-Suggested initial values:
+建议的初始值：
 \[
 \mathbf{K}_p = \mathrm{diag}(2500,\;2500,\;2500,\;1600),\qquad
 \mathbf{K}_v = \mathrm{diag}(100,\;100,\;100,\;80)
 \]
-(corresponding to $\omega_n \approx 50$\,rad/s for revolute, 40 for prismatic, with $\zeta=1$).
+（对应转动关节 $\omega_n \approx 50$\,rad/s，移动关节约 40\,rad/s，$\zeta=1$）。
 
-\subsection{The Rounded Step Trajectory}
+\subsection{圆角阶跃轨迹}
 
-Since computed torque control requires $\bm{\theta}_d$ to be \textbf{twice differentiable}, a \textbf{quintic polynomial} rounded step is used:
+由于计算力矩控制需要 $\bm{\theta}_d$ 为\ \textbf{二次可微}\ 函数，这里使用\ \textbf{五次多项式}\ 圆角阶跃：
 \[
 r(t) = \begin{cases}
 0, & t \le t_0 \\[3pt]
@@ -483,131 +472,108 @@ r(t) = \begin{cases}
 \end{cases}
 \]
 
-\begin{conceptbox}[Properties of the Quintic Rounded Step]
+\begin{conceptbox}[五次圆角阶跃函数的性质]
 \begin{itemize}
-  \item $r(t_0) = 0$, $r(t_0+\Delta t) = 1$
+  \item $r(t_0) = 0$， $r(t_0+\Delta t) = 1$
   \item $\dot{r}(t_0) = \dot{r}(t_0+\Delta t) = 0$
   \item $\ddot{r}(t_0) = \ddot{r}(t_0+\Delta t) = 0$
-  \item The function is $\mathcal{C}^2$ continuous everywhere.
+  \item 该函数是处处 $\mathcal{C}^2$ 连续的。
 \end{itemize}
 \end{conceptbox}
 
-The transition parameters (from \texttt{initialize\_simulink.m}):
+过渡参数（来自 \texttt{initialize\_simulink.m}）：
 \[
 t_0 = 1.0\,\text{s},\qquad \Delta t = 0.2\,\text{s},
 \]
-so the step starts at $t=1.0$\,s, ramps from $t=1.0$ to $t=1.2$\,s, then holds constant.
+即阶跃从 $t=1.0$\,s 开始，在 $t=1.0$ 到 $t=1.2$\,s 之间过渡，然后保持恒定。
 
-The desired joint trajectories are obtained by scaling:
+期望关节轨迹通过缩放得到：
 \[
 \bm{\theta}_d(t) = \begin{bmatrix} 2 \\ 1 \\ 0.5 \\ 0.08 \end{bmatrix} \cdot r(t),\qquad
 \dot{\bm{\theta}}_d(t) = \begin{bmatrix} 2 \\ 1 \\ 0.5 \\ 0.08 \end{bmatrix} \cdot \dot{r}(t),\qquad
 \ddot{\bm{\theta}}_d(t) = \begin{bmatrix} 2 \\ 1 \\ 0.5 \\ 0.08 \end{bmatrix} \cdot \ddot{r}(t).
 \]
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[scale=1.3,>=stealth]
-  \draw[->] (0,0) -- (6.5,0) node[right] {$t$\,(s)};
-  \draw[->] (0,0) -- (0,3.5) node[above] {};
-  % Step function
-  \draw[thick, blue!50!black] (0,0) -- (2,0);
-  \draw[thick, blue!50!black, samples=50, domain=2:3] plot (\x, { 10*((\x-2)/1)^3 - 15*((\x-2)/1)^4 + 6*((\x-2)/1)^5 });
-  \draw[thick, blue!50!black] (3,1) -- (5,1);
-  \node[blue!50!black] at (1.5,0.3) {Hold at 0};
-  \node[blue!50!black] at (4.5,1.3) {Hold at $A$};
-  \draw[|<->|] (2,-0.3) -- (3,-0.3) node[midway,below] {$\Delta t = 0.2$\,s};
-  \draw[dashed] (2,0) -- (2,1.1);
-  \draw[dashed] (3,0) -- (3,1.1);
-  \node at (2,-0.6) {$t_0=1.0$};
-  \node at (3,-0.6) {$t_0+\Delta t=1.2$};
-\end{tikzpicture}
-\caption{Quintic rounded step function $A \cdot r(t)$ with amplitude $A$.}
-\label{fig:rounded_step}
-\end{figure}
+\subsection{Simulink 实现}
 
-\subsection{Simulink Implementation}
+\begin{stepbox}[Simulink 逐步搭建指南]
+\begin{enumerate}[leftmargin=*, label=\textbf{步骤 \arabic*}., ref=步骤 \arabic*]
+  \item \textbf{复制圆角阶跃模块}：从 \texttt{MLS4\_4\_rounded\_step\_inputR2024a.slx} 复制到你的新模型中。该模块输出 $[y,\;\dot{y},\;\ddot{y}]^\top$。
+  \item \textbf{缩放输出：} 将 $y$、$\dot{y}$、$\ddot{y}$ 信号分别乘以幅值向量 $[2,\,1,\,0.5,\,0.08]$，得到 $\bm{\theta}_d$、$\dot{\bm{\theta}}_d$、$\ddot{\bm{\theta}}_d$。
 
-\begin{stepbox}[Step-by-Step Simulink Construction]
-\begin{enumerate}[leftmargin=*, label=\textbf{S\arabic*}., ref=S\arabic*]
-  \item \textbf{Copy the rounded step block} from \texttt{MLS4\_4\_rounded\_step\_inputR2024a.slx} into your new model. This block outputs $[y,\;\dot{y},\;\ddot{y}]^\top$ where $y$ is the quintic rounded step.
-  \item \textbf{Scale the outputs:} Multiply the $y$, $\dot{y}$, $\ddot{y}$ signals by the amplitude vector $[2,\,1,\,0.5,\,0.08]$ to obtain $\bm{\theta}_d$, $\dot{\bm{\theta}}_d$, $\ddot{\bm{\theta}}_d$.
-
-  \item \textbf{Implement two MATLAB Function blocks} for dynamics:
+  \item \textbf{实现两个 MATLAB Function 模块}\ 用于动力学计算：
   \begin{itemize}
-    \item \textbf{Controller dynamics block:} Contains \texttt{MCNsim} with \textbf{nominal} parameters (call it \texttt{MCN\_ctrl}). Inputs: $\bm{\theta}$, $\dot{\bm{\theta}}$. Outputs: $\mathbf{M}_c$, $\mathbf{C}_c$, $\mathbf{N}_c$.
-    \item \textbf{Plant dynamics block:} Contains \texttt{MCNsim} with (potentially perturbed) parameters (call it \texttt{MCN\_plant}). Inputs: $\bm{\theta}$, $\dot{\bm{\theta}}$. Outputs: $\mathbf{M}_p$, $\mathbf{C}_p$, $\mathbf{N}_p$.
+    \item \textbf{控制器动力学模块：} 包含使用\ \textbf{标称}\ 参数的 \texttt{MCNsim}（命名为 \texttt{MCN\_ctrl}）。输入：$\bm{\theta}$、$\dot{\bm{\theta}}$。输出：$\mathbf{M}_c$、$\mathbf{C}_c$、$\mathbf{N}_c$。
+    \item \textbf{被控对象动力学模块：} 包含使用（可能扰动的）参数的 \texttt{MCNsim}（命名为 \texttt{MCN\_plant}）。输入：$\bm{\theta}$、$\dot{\bm{\theta}}$。输出：$\mathbf{M}_p$、$\mathbf{C}_p$、$\mathbf{N}_p$。
   \end{itemize}
-  (Initially, both use identical nominal parameters.)
+  （初始时，两个模块使用完全相同的标称参数。）
 
-  \item \textbf{Compute $\ddot{\bm{\theta}}^*$:}
+  \item \textbf{计算 $\ddot{\bm{\theta}}^*$：}
   \[
   \ddot{\bm{\theta}}^* = \ddot{\bm{\theta}}_d + \mathbf{K}_v(\dot{\bm{\theta}}_d - \dot{\bm{\theta}}) + \mathbf{K}_p(\bm{\theta}_d - \bm{\theta})
   \]
-  Use matrix gain blocks or a MATLAB Function block.
+  使用矩阵增益模块或 MATLAB Function 模块。
 
-  \item \textbf{Compute control torque $\bm{\tau}$:}
+  \item \textbf{计算控制力矩 $\bm{\tau}$：}
   \[
   \bm{\tau} = \mathbf{M}_c\,\ddot{\bm{\theta}}^* + \mathbf{C}_c\,\dot{\bm{\theta}} + \mathbf{N}_c
   \]
 
-  \item \textbf{Solve forward dynamics} using the plant model:
+  \item \textbf{求解正动力学}\ 使用被控对象模型：
   \[
   \ddot{\bm{\theta}} = \mathbf{M}_p^{-1}\bigl(\bm{\tau} - \mathbf{C}_p\,\dot{\bm{\theta}} - \mathbf{N}_p\bigr)
   \]
-  Use a MATLAB Function block that inverts $\mathbf{M}_p$ and computes the acceleration.
+  使用 MATLAB Function 模块对 $\mathbf{M}_p$ 求逆并计算加速度。
 
-  \item \textbf{Integrate twice} to get $\dot{\bm{\theta}}$ and $\bm{\theta}$:
+  \item \textbf{积分两次}\ 得到 $\dot{\bm{\theta}}$ 和 $\bm{\theta}$：
   \begin{itemize}
-    \item First integrator: $\ddot{\bm{\theta}} \to \dot{\bm{\theta}}$
-    \item Second integrator: $\dot{\bm{\theta}} \to \bm{\theta}$
+    \item 第一个积分器：$\ddot{\bm{\theta}} \to \dot{\bm{\theta}}$
+    \item 第二个积分器：$\dot{\bm{\theta}} \to \bm{\theta}$
   \end{itemize}
 
-  \item \textbf{Initial conditions:} Set $\bm{\theta}(0) = [\pi/4,\;\pi/6,\;\pi/2.5,\;-0.04]^\top$ and $\dot{\bm{\theta}}(0)=\mathbf{0}$.
+  \item \textbf{初始条件：} 设置 $\bm{\theta}(0) = [\pi/4,\;\pi/6,\;\pi/2.5,\;-0.04]^\top$，$\dot{\bm{\theta}}(0)=\mathbf{0}$。
 \end{enumerate}
 \end{stepbox}
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[node distance=2cm,>=stealth, auto]
-  \tikzstyle{block} = [draw, rectangle, minimum width=2.5cm, minimum height=1cm, align=center, fill=blue!10]
-  \tikzstyle{sum} = [draw, circle, minimum size=0.7cm]
-  \tikzstyle{input} = [coordinate]
-  \tikzstyle{output} = [coordinate]
+\begin{tikzpicture}[node distance=2.5cm,>=stealth, auto,
+  block/.style={draw, rectangle, minimum width=2.5cm, minimum height=1cm, align=center, fill=blue!10},
+  sum/.style={draw, circle, minimum size=0.7cm}]
 
-  % Rounded step
-  \node [block] (step) {Rounded Step\\$[y,\dot{y},\ddot{y}]^\top$};
-  \node [block, right=1.5cm of step] (scale) {Scale by\\$[2,1,0.5,0.08]$};
+  % 圆角阶跃
+  \node [block] (step) {圆角阶跃\\$[y,\dot{y},\ddot{y}]^\top$};
+  \node [block, right=2cm of step] (scale) {按幅值缩放\\$[2,1,0.5,0.08]$};
 
-  % PD+ff
-  \node [sum, right=1.5cm of scale] (sum1) {$+$};
+  % PD + 前馈
+  \node [sum, right=2cm of scale] (sum1) {$+$};
   \node [sum, below=1cm of sum1] (sum2) {$+$};
   \node [sum, below=1cm of sum2] (sum3) {$+$};
 
-  % Gains
-  \node [block, right=1cm of sum1] (Kp) {$\mathbf{K}_p$};
-  \node [block, right=1cm of sum2] (Kv) {$\mathbf{K}_v$};
+  % 增益
+  \node [block, right=1.5cm of sum1] (Kp) {$\mathbf{K}_p$};
+  \node [block, right=1.5cm of sum2] (Kv) {$\mathbf{K}_v$};
 
-  % Sum for tau*
+  % 求和节点 tau*
   \node [sum, right=1.5cm of Kv] (sum_tau) {$+$};
 
-  % Controller MCN
-  \node [block, below=2cm of scale] (mcn_ctrl) {MCN\_ctrl\\(nominal)};
+  % 控制器 MCN
+  \node [block, below=2cm of scale] (mcn_ctrl) {MCN\_ctrl\\(标称参数)};
 
-  % Tau computation
-  \node [block, right=1cm of sum_tau] (tau_block) {$\bm{\tau} = \mathbf{M}_c\ddot{\bm{\theta}}^*$\\$+\mathbf{C}_c\dot{\bm{\theta}}+\mathbf{N}_c$};
+  % tau 计算
+  \node [block, right=1.5cm of sum_tau] (tau_block) {$\bm{\tau} = \mathbf{M}_c\ddot{\bm{\theta}}^*$\\$+\mathbf{C}_c\dot{\bm{\theta}}+\mathbf{N}_c$};
 
-  % Plant dynamics
-  \node [block, right=1.5cm of tau_block] (plant) {Forward\\Dynamics\\$\ddot{\bm{\theta}}=\mathbf{M}_p^{-1}(\bm{\tau}-\mathbf{C}_p\dot{\bm{\theta}}-\mathbf{N}_p)$};
+  % 被控对象正动力学
+  \node [block, right=1.5cm of tau_block] (plant) {正动力学\\$\ddot{\bm{\theta}}=\mathbf{M}_p^{-1}(\bm{\tau}-\mathbf{C}_p\dot{\bm{\theta}}-\mathbf{N}_p)$};
 
-  % Integrators
+  % 积分器
   \node [block, right=1.5cm of plant] (int2) {$\int$};
-  \node [block, right=1cm of int2] (int1) {$\int$};
+  \node [block, right=1.5cm of int2] (int1) {$\int$};
 
-  \node [right=1cm of int1] (theta_out) {$\bm{\theta}$};
-  \node [above=0.5cm of int2] (dtheta_out) {$\dot{\bm{\theta}}$};
+  \node [right=1.5cm of int1] (theta_out) {$\bm{\theta}$};
+  \node [above=0.8cm of int2] (dtheta_out) {$\dot{\bm{\theta}}$};
 
-  % Connections
+  % 连线
   \draw[->] (step) -- (scale);
   \draw[->] (scale.east) -- node[above] {$\bm{\theta}_d$} (sum1);
   \draw[->] (scale.east) -- ++(0,-1) -- node[above] {$\dot{\bm{\theta}}_d$} (sum2);
@@ -619,11 +585,11 @@ The desired joint trajectories are obtained by scaling:
   \draw[->] (Kv) -- (sum_tau);
   \draw[->] (sum3) -- (sum_tau);
 
-  % Feedback
-  \draw[->] (int2) -- ++(0,3) -- node[above] {$\dot{\bm{\theta}}$} ++(-8,0) -- (sum2);
-  \draw[->] (int1) -- ++(0,4) -- node[above] {$\bm{\theta}$} ++(-10,0) -- (sum1);
+  % 反馈
+  \draw[->] (int2) -- ++(0,3.5) -- node[above] {$\dot{\bm{\theta}}$} ++(-14,0) -- (sum2);
+  \draw[->] (int1) -- ++(0,5) -- node[above] {$\bm{\theta}$} ++(-17,0) -- (sum1);
 
-  % MCN connections
+  % MCN 连接
   \draw[->] (mcn_ctrl) -- (tau_block);
   \draw[->] (sum_tau) -- (tau_block);
   \draw[->] (tau_block) -- (plant);
@@ -632,211 +598,210 @@ The desired joint trajectories are obtained by scaling:
   \draw[->] (int1) -- (theta_out);
 
 \end{tikzpicture}
-\caption{High-level Simulink block diagram for the computed torque controller. Two MCN blocks are used: one for the controller (nominal) and one for the plant (possibly perturbed).}
+\caption{计算力矩控制器 Simulink 高层框图。使用两个 MCN 模块：一个用于控制器（标称参数），另一个用于被控对象（可引入扰动）。}
 \label{fig:simulink_block}
 \end{figure}
 
-\subsection{Verification}
+\subsection{验证}
 
-\begin{stepbox}[Verification Steps]
+\begin{stepbox}[验证步骤]
 \begin{enumerate}
-  \item Run the simulation for $3$--$5$ seconds.
-  \item Check that all joints converge to their desired final values:
-  $\theta_1\to 2$, $\theta_2\to 1$, $\theta_3\to 0.5$, $d_4\to 0.08$.
-  \item Verify that tracking errors $\mathbf{e}(t) = \bm{\theta}_d(t) - \bm{\theta}(t)$ converge to zero.
-  \item Check that the torque $\bm{\tau}$ is physically reasonable.
+  \item 运行仿真 3--5 秒。
+  \item 检查所有关节是否收敛到期望终值：$\theta_1\to 2$, $\theta_2\to 1$, $\theta_3\to 0.5$, $d_4\to 0.08$。
+  \item 验证跟踪误差 $\mathbf{e}(t) = \bm{\theta}_d(t) - \bm{\theta}(t)$ 是否收敛到零。
+  \item 检查力矩 $\bm{\tau}$ 是否在合理范围内。
 \end{enumerate}
 \end{stepbox}
 
 % ===================================================================
-\section{Part (b): Robustness Study}
+\section{第 (b) 部分：鲁棒性研究}
 % ===================================================================
 
-\subsection{Methodology}
+\subsection{方法}
 
-To assess robustness, we introduce a \textbf{mismatch} between the \textbf{plant} (actual physical robot) and the \textbf{controller} (which assumes nominal parameters).
+为评估鲁棒性，我们在\ \textbf{被控对象}\ （实际物理机器人）和\ \textbf{控制器}\ （假定标称参数）之间引入\ \textbf{不匹配}。
 
-\begin{conceptbox}[Perturbation Strategy]
-\textbf{Plant only:} Multiply all entries of each link's spatial inertia matrix $\hat{\mathbf{M}}_i^s$ by $(1+\delta)$ in the MCN\_plant block, where $\delta \in \{-0.10,\,-0.05,\,+0.05,\,+0.10\}$.
+\begin{conceptbox}[扰动策略]
+\textbf{仅被控对象：} 在 MCN\_plant 模块中，将每个连杆的\ \textbf{空间惯性矩阵 $\hat{\mathbf{M}}_i^s$}\ 的所有元素乘以 $(1+\delta)$，其中 $\delta \in \{-0.10,\,-0.05,\,+0.05,\,+0.10\}$。
 
-\textbf{Controller:} Keep the MCN\_ctrl block using the original (nominal) $\hat{\mathbf{M}}_i^s$.
+\textbf{控制器：} MCN\_ctrl 模块保持使用原始（标称）$\hat{\mathbf{M}}_i^s$。
 \end{conceptbox}
 
-\subsection{Implementation in Simulink}
+\subsection{Simulink 实现方法}
 
-In the \texttt{MCNsim} function used by the plant, modify the \texttt{calMp} array as:
+在被控对象使用的 \texttt{MCNsim} 函数中，修改 \texttt{calMp} 数组：
 \begin{lstlisting}[language=Matlab]
-% In MCN_plant only:
-delta = 0.05;  % or -0.05, 0.10, -0.10
+% 仅在 MCN_plant 中：
+delta = 0.05;  % 或 -0.05, 0.10, -0.10
 calMp_perturbed = calMp * (1 + delta);
-% Use calMp_perturbed in the dynamics computation
+% 后续动力学计算中使用 calMp_perturbed
 \end{lstlisting}
 
-Alternatively, pass a \texttt{delta} parameter as an additional input to your MATLAB Function block.
+或者，将 \texttt{delta} 参数作为额外输入传入你的 MATLAB Function 模块。
 
-\subsection{What to Observe and Report}
+\subsection{需要观察和报告的内容}
 
 \begin{enumerate}[leftmargin=*]
-  \item \textbf{Tracking error:} Plot $\mathbf{e}(t)$ for $\delta=0$ (baseline) vs.\ $\delta=\pm 5\%$, $\pm 10\%$. The error should \textbf{not converge to zero} when there is parameter mismatch --- this is the key weakness of computed torque control (it relies on exact model cancellation).
-  \item \textbf{Steady-state error:} Even at steady state, a non-zero error persists due to incorrect gravity compensation.
-  \item \textbf{Transient behavior:} Overshoot and settling time change with parameter perturbation.
-  \item \textbf{Effect direction:} Positive $\delta$ (heavier robot than modeled) vs.\ negative $\delta$ (lighter robot) produce different error patterns.
+  \item \textbf{跟踪误差：} 绘制 $\delta=0$（基线）与 $\delta=\pm 5\%$、$\pm 10\%$ 下的 $\mathbf{e}(t)$ 曲线。参数不匹配时，误差\ \textbf{不应收敛到零}\ --- 这正是计算力矩控制的关键弱点（依赖精确的模型对消）。
+  \item \textbf{稳态误差：} 即使到达稳态，由于重力补偿不正确，非零误差仍然存在。
+  \item \textbf{瞬态行为：} 超调量和调节时间随参数扰动变化。
+  \item \textbf{影响方向：} 正 $\delta$（机器人比模型重）和负 $\delta$（机器人比模型轻）会产生不同的误差模式。
 \end{enumerate}
 
-\begin{resultbox}[Expected Results]
+\begin{resultbox}[预期结果]
 \begin{itemize}
-  \item With \textbf{no perturbation} ($\delta = 0$): perfect asymptotic tracking, $\mathbf{e}(t) \to \mathbf{0}$.
-  \item With \textbf{perturbation} ($\delta \neq 0$): non-zero steady-state error; the larger $|\delta|$, the larger the error.
-  \item The prismatic joint (joint 4) is typically most sensitive due to direct gravity loading.
+  \item \textbf{无扰动}\ ($\delta = 0$) 时：完美渐近跟踪，$\mathbf{e}(t) \to \mathbf{0}$。
+  \item \textbf{有扰动}\ ($\delta \neq 0$) 时：非零稳态误差；$|\delta|$ 越大，误差越大。
+  \item 移动关节（关节 4）由于直接重力负载，通常最为敏感。
 \end{itemize}
 \end{resultbox}
 
 % ===================================================================
-\section{Part (c): PD Control Scheme}
+\section{第 (c) 部分：PD 控制方案}
 % ===================================================================
 
-\subsection{PD Control Law}
+\subsection{PD 控制律}
 
-The \textbf{PD+gravity compensation} controller is:
+\textbf{PD + 重力补偿}\ 控制器为：
 \[
 \boxed{\bm{\tau}_{\text{PD}} = \mathbf{K}_p\bigl(\bm{\theta}_d - \bm{\theta}\bigr) + \mathbf{K}_v\bigl(\dot{\bm{\theta}}_d - \dot{\bm{\theta}}\bigr) + \mathbf{N}(\bm{\theta})}
 \]
 
-Compared to computed torque, the PD controller:
+与计算力矩控制相比，PD 控制器：
 \begin{itemize}
-  \item \textbf{Does not use} $\mathbf{M}(\bm{\theta})$ or $\mathbf{C}(\bm{\theta},\dot{\bm{\theta}})$ in the feedback path (only $\mathbf{N}$ for gravity compensation).
-  \item Is \textbf{simpler} to implement and computationally cheaper.
-  \item Has \textbf{nonlinear} closed-loop error dynamics (cannot perfectly cancel nonlinearities).
-  \item \textbf{Does not require} $\ddot{\bm{\theta}}_d$ (only $\bm{\theta}_d$ and $\dot{\bm{\theta}}_d$).
+  \item \textbf{不使用} $\mathbf{M}(\bm{\theta})$ 和 $\mathbf{C}(\bm{\theta},\dot{\bm{\theta}})$（仅用 $\mathbf{N}$ 做重力补偿）。
+  \item 实现\ \textbf{更简单}，计算量更小。
+  \item 闭环误差动力学是\ \textbf{非线性}\ 的（无法完美对消非线性项）。
+  \item \textbf{不需要} $\ddot{\bm{\theta}}_d$（只需 $\bm{\theta}_d$ 和 $\dot{\bm{\theta}}_d$）。
 \end{itemize}
 
-The closed-loop dynamics under PD control:
+PD 控制下的闭环动力学：
 \[
 \mathbf{M}(\bm{\theta})\,\ddot{\bm{\theta}} + \mathbf{C}(\bm{\theta},\dot{\bm{\theta}})\,\dot{\bm{\theta}} + \mathbf{N}(\bm{\theta}) = \mathbf{K}_p\mathbf{e} + \mathbf{K}_v\dot{\mathbf{e}} + \mathbf{N}(\bm{\theta})
 \]
-which does \textbf{not} reduce to a simple linear system.
+该方程\ \textbf{不能}\ 简化为简单的线性系统。
 
-\subsection{Simulink Implementation}
+\subsection{Simulink 实现}
 
-\begin{stepbox}[PD Controller Block Diagram --- Simpler than computed torque]
+\begin{stepbox}[PD 控制器框图 --- 比计算力矩更简单]
 \begin{enumerate}
-  \item Remove the $\mathbf{M}_c$, $\mathbf{C}_c$, and $\mathbf{N}_c$ blocks.
-  \item Remove the feedforward $\ddot{\bm{\theta}}_d$ term.
-  \item Compute:
+  \item 移除 $\mathbf{M}_c$、$\mathbf{C}_c$ 和 $\mathbf{N}_c$ 模块。
+  \item 移除前馈 $\ddot{\bm{\theta}}_d$ 项。
+  \item 计算：
   \[
   \bm{\tau} = \mathbf{K}_p(\bm{\theta}_d - \bm{\theta}) + \mathbf{K}_v(\dot{\bm{\theta}}_d - \dot{\bm{\theta}}) + \mathbf{N}_p(\bm{\theta})
   \]
-  where $\mathbf{N}_p$ is the gravity vector only (friction optional). Note: for PD only (no gravity comp), omit the $\mathbf{N}_p$ term.
-  \item Feed $\bm{\tau}$ directly to the forward dynamics (plant model).
+  其中 $\mathbf{N}_p$ 仅为重力向量（摩擦可选）。注意：若仅用 PD（无重力补偿），则省略 $\mathbf{N}_p$ 项。
+  \item 将 $\bm{\tau}$ 直接输入正动力学（被控对象模型）。
 \end{enumerate}
 \end{stepbox}
 
-\subsection{Gain Tuning for PD}
+\subsection{PD 增益整定}
 
-PD gains typically need to be \textbf{larger} than computed torque gains to compensate for the lack of model-based decoupling:
+PD 增益通常需要比计算力矩增益\ \textbf{更大}，以补偿模型解耦的缺失：
 \[
 \mathbf{K}_p^{\text{PD}} \approx (2\text{--}5) \times \mathbf{K}_p^{\text{CT}},\qquad
 \mathbf{K}_v^{\text{PD}} \approx (2\text{--}5) \times \mathbf{K}_v^{\text{CT}}.
 \]
 
-\subsection{What to Compare and Report}
+\subsection{对比内容与报告}
 
 \begin{table}[H]
 \centering
-\caption{Comparison: Computed Torque vs.\ PD Control}
+\caption{对比：计算力矩控制 vs.\ PD 控制}
 \begin{tabular}{p{3.5cm}p{6cm}p{5cm}}
 \toprule
-\textbf{Criterion} & \textbf{Computed Torque} & \textbf{PD (+ Gravity Comp)} \\
+\textbf{对比项} & \textbf{计算力矩} & \textbf{PD（+ 重力补偿）} \\
 \midrule
-Model dependency & Full $\mathbf{M},\mathbf{C},\mathbf{N}$ & $\mathbf{N}$ only (or none) \\
-Computational cost & High (matrix inversion) & Low \\
-Tracking accuracy & Excellent (if model exact) & Moderate (nonlinear coupling) \\
-Robustness to param.\ errors & Poor (relies on cancellation) & Good (no cancellation needed) \\
-Gain tuning & Systematic (pole placement) & Heuristic / trial-and-error \\
-$\ddot{\bm{\theta}}_d$ required? & Yes & No \\
+模型依赖 & 完整 $\mathbf{M},\mathbf{C},\mathbf{N}$ & 仅 $\mathbf{N}$（或全无） \\
+计算开销 & 高（需矩阵求逆） & 低 \\
+跟踪精度 & 优秀（模型精确时） & 中等（存在非线性耦合） \\
+参数误差鲁棒性 & 差（依赖精确对消） & 好（无需精确对消） \\
+增益整定 & 系统化（极点配置） & 启发式 / 试凑法 \\
+需要 $\ddot{\bm{\theta}}_d$？ & 是 & 否 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{resultbox}[Expected Results]
+\begin{resultbox}[预期结果]
 \begin{itemize}
-  \item \textbf{Computed torque} achieves faster, more accurate tracking when the model is exact.
-  \item \textbf{PD} has larger tracking errors during transients due to uncompensated dynamic coupling.
-  \item \textbf{PD} is more robust to parameter uncertainty (the error degrades gracefully rather than catastrophically).
-  \item With gravity compensation, PD achieves zero steady-state error for step references (by the passivity argument).
-  \item Without gravity compensation, PD has steady-state error.
+  \item \textbf{计算力矩}\ 在模型精确时实现更快、更准确的跟踪。
+  \item \textbf{PD}\ 在瞬态过程中因未补偿的动态耦合而具有较大的跟踪误差。
+  \item \textbf{PD}\ 对参数不确定性更鲁棒（误差退化是渐进的，而非突变）。
+  \item 有重力补偿时，PD 对阶跃参考可实现零稳态误差（由无源性理论保证）。
+  \item 无重力补偿时，PD 存在稳态误差。
 \end{itemize}
 \end{resultbox}
 
 % ===================================================================
-\section{Part (d): Torque Saturation}
+\section{第 (d) 部分：力矩饱和}
 % ===================================================================
 
-\subsection{Problem Formulation}
+\subsection{问题描述}
 
-Real actuators have finite torque/force capabilities. The saturation limits are:
+实际执行器具有有限的力矩/力输出能力。饱和限值为：
 \[
 |\tau_i| \le \tau_{i,\max},\qquad
 \bm{\tau}_{\max} = \begin{bmatrix} 6000 \\ 2000 \\ 1000 \\ 100 \end{bmatrix}
-\;\text{Nm (joints 1--3) / N (joint 4)}.
+\;\text{Nm（关节 1--3）/ N（关节 4）}.
 \]
 
-When the computed torque controller demands $\tau_i$ beyond $\tau_{i,\max}$, the actual applied torque is \textbf{clipped}:
+当计算力矩控制器要求的 $\tau_i$ 超过 $\tau_{i,\max}$ 时，实际施加的力矩会被\ \textbf{截断}：
 \[
-\tau_i^{\text{applied}} = \mathrm{sat}(\tau_i^{\text{commanded}};\;-\tau_{i,\max},\;\tau_{i,\max})
+\tau_i^{\text{实际}} = \mathrm{sat}(\tau_i^{\text{指令}};\;-\tau_{i,\max},\;\tau_{i,\max})
 = \begin{cases}
-\tau_{i,\max}, & \tau_i^{\text{commanded}} > \tau_{i,\max} \\
-\tau_i^{\text{commanded}}, & |\tau_i^{\text{commanded}}| \le \tau_{i,\max} \\
--\tau_{i,\max}, & \tau_i^{\text{commanded}} < -\tau_{i,\max}
+\tau_{i,\max}, & \tau_i^{\text{指令}} > \tau_{i,\max} \\
+\tau_i^{\text{指令}}, & |\tau_i^{\text{指令}}| \le \tau_{i,\max} \\
+-\tau_{i,\max}, & \tau_i^{\text{指令}} < -\tau_{i,\max}
 \end{cases}
 \]
 
-\subsection{Simulink Implementation}
+\subsection{Simulink 实现}
 
-\begin{stepbox}[Saturation Block Placement]
-Insert a \textbf{Saturation} block (from Simulink $\to$ Discontinuities library) between the computed torque output and the forward dynamics plant input, with limits set to $\pm[6000,\,2000,\,1000,\,100]$.
+\begin{stepbox}[饱和模块的放置]
+在计算力矩输出与正动力学被控对象输入之间插入一个\ \textbf{Saturation 模块}\ （位于 Simulink $\to$ Discontinuities 库），限值设为 $\pm[6000,\,2000,\,1000,\,100]$。
 \end{stepbox}
 
-\subsection{Effects of Saturation}
+\subsection{饱和效应}
 
-\begin{conceptbox}[Key Phenomena]
+\begin{conceptbox}[关键现象]
 \begin{enumerate}
-  \item \textbf{Integrator windup:} When the torque saturates, the error keeps accumulating in the integrator (if used), causing large overshoots when the system comes out of saturation. This is called \textbf{windup}.
-  \item \textbf{Slower response:} The system cannot accelerate as fast as commanded, so tracking is degraded during the transient.
-  \item \textbf{Potential instability:} If the controller relies on the exact cancellation of nonlinearities and the applied torque differs significantly from the commanded torque, the error dynamics are no longer linear and may become unstable.
-  \item \textbf{Step-size dependence:} Larger desired steps require larger torques; the saturation limits may be exceeded more severely.
+  \item \textbf{积分器 Windup（卷绕）：} 当力矩饱和时，误差继续累积在积分器（如使用）中，导致退出饱和时产生大幅超调。这称为\ \textbf{windup 现象}。
+  \item \textbf{响应变慢：} 系统无法按规定加速度运动，瞬态过程中的跟踪性能下降。
+  \item \textbf{潜在不稳定：} 如果控制器依赖非线性项的精确对消，而实际施加的力矩与指令力矩差异显著，误差动力学不再是线性的，可能变得不稳定。
+  \item \textbf{阶跃幅度依赖性：} 更大的期望阶跃需要更大的力矩；饱和限值可能被更严重地突破。
 \end{enumerate}
 \end{conceptbox}
 
-\subsection{Anti-Windup Strategies (Optional Investigation)}
+\subsection{抗 Windup 策略（选做研究）}
 
 \begin{enumerate}[leftmargin=*]
-  \item \textbf{Back-calculation:} Feed the difference $(\bm{\tau}_{\text{applied}} - \bm{\tau}_{\text{commanded}})$ back to reduce the integral action.
-  \item \textbf{Conditional integration:} Freeze the integrator when saturation is active.
-  \item \textbf{Reference governor:} Scale down $\ddot{\bm{\theta}}^*$ when the commanded torque exceeds limits.
+  \item \textbf{反算（Back-calculation）：} 将差值 $(\bm{\tau}_{\text{实际}} - \bm{\tau}_{\text{指令}})$ 反馈以减小积分作用。
+  \item \textbf{条件积分：} 在饱和激活时冻结积分器。
+  \item \textbf{参考指令调节器：} 当指令力矩超过限值时，缩小 $\ddot{\bm{\theta}}^*$。
 \end{enumerate}
 
-\subsection{What to Report}
+\subsection{需要报告的内容}
 
 \begin{enumerate}[leftmargin=*]
-  \item Plot commanded vs.\ applied torques for each joint.
-  \item Compare tracking performance with and without saturation.
-  \item Identify which joints saturate first (typically joint 1, which supports the entire arm).
-  \item Investigate whether the saturation limits are adequate for the desired trajectory.
-  \item If windup is observed, suggest and test an anti-windup modification.
+  \item 绘制各关节的指令力矩 vs.\ 实际力矩。
+  \item 对比有饱和和无饱和时的跟踪性能。
+  \item 识别哪些关节最先饱和（通常是支撑整个手臂的关节 1）。
+  \item 研究饱和限值是否足以完成期望轨迹。
+  \item 如观察到 windup 现象，建议并测试抗 windup 改进方法。
 \end{enumerate}
 
-\begin{resultbox}[Expected Results]
+\begin{resultbox}[预期结果]
 \begin{itemize}
-  \item Joint 1 (the base joint) requires the largest torque and is most likely to saturate first.
-  \item Under saturation, tracking errors increase and may not converge to zero.
-  \item The response becomes slower and may exhibit overshoot due to windup.
-  \item With anti-windup, the overshoot is reduced but the speed is still limited by actuator capability.
+  \item 关节 1（基座关节）需要最大力矩，最可能首先饱和。
+  \item 饱和时，跟踪误差增大且可能不收敛到零。
+  \item 响应变慢，可能因 windup 出现超调。
+  \item 加入抗 windup 后，超调减小，但速度仍受执行器能力限制。
 \end{itemize}
 \end{resultbox}
 
 % ===================================================================
-\section{Summary of the Complete Simulink Model}
+\section{完整 Simulink 模型总览}
 % ===================================================================
 
 \begin{figure}[H]
@@ -844,51 +809,51 @@ Insert a \textbf{Saturation} block (from Simulink $\to$ Discontinuities library)
 \fbox{%
 \begin{minipage}{0.9\textwidth}
 \vspace{5pt}
-\textbf{Controller side (runs at each time step):}
+\textbf{控制器侧（每个时间步执行）：}
 \begin{enumerate}[leftmargin=*, nosep]
-  \item Read $\bm{\theta}$, $\dot{\bm{\theta}}$ (from integrators)
-  \item Read $\bm{\theta}_d$, $\dot{\bm{\theta}}_d$, $\ddot{\bm{\theta}}_d$ (from rounded step generator)
-  \item Compute $\mathbf{e} = \bm{\theta}_d - \bm{\theta}$, $\dot{\mathbf{e}} = \dot{\bm{\theta}}_d - \dot{\bm{\theta}}$
-  \item Compute: $\ddot{\bm{\theta}}^* = \ddot{\bm{\theta}}_d + \mathbf{K}_v\dot{\mathbf{e}} + \mathbf{K}_p\mathbf{e}$
-  \item Call MCN\_ctrl$(\bm{\theta},\dot{\bm{\theta}})$ $\to$ $\mathbf{M}_c,\mathbf{C}_c,\mathbf{N}_c$
-  \item Compute: $\bm{\tau} = \mathbf{M}_c\ddot{\bm{\theta}}^* + \mathbf{C}_c\dot{\bm{\theta}} + \mathbf{N}_c$
-  \item Apply saturation: $\bm{\tau}_a = \mathrm{sat}(\bm{\tau})$
+  \item 读取 $\bm{\theta}$、$\dot{\bm{\theta}}$（来自积分器）
+  \item 读取 $\bm{\theta}_d$、$\dot{\bm{\theta}}_d$、$\ddot{\bm{\theta}}_d$（来自圆角阶跃生成器）
+  \item 计算 $\mathbf{e} = \bm{\theta}_d - \bm{\theta}$， $\dot{\mathbf{e}} = \dot{\bm{\theta}}_d - \dot{\bm{\theta}}$
+  \item 计算：$\ddot{\bm{\theta}}^* = \ddot{\bm{\theta}}_d + \mathbf{K}_v\dot{\mathbf{e}} + \mathbf{K}_p\mathbf{e}$
+  \item 调用 MCN\_ctrl$(\bm{\theta},\dot{\bm{\theta}})$ $\to$ $\mathbf{M}_c,\mathbf{C}_c,\mathbf{N}_c$
+  \item 计算：$\bm{\tau} = \mathbf{M}_c\ddot{\bm{\theta}}^* + \mathbf{C}_c\dot{\bm{\theta}} + \mathbf{N}_c$
+  \item 施加饱和：$\bm{\tau}_a = \mathrm{sat}(\bm{\tau})$
 \end{enumerate}
 \vspace{3pt}
 \hrule
 \vspace{3pt}
-\textbf{Plant side (forward dynamics):}
+\textbf{被控对象侧（正动力学）：}
 \begin{enumerate}[leftmargin=*, nosep]
-  \item Call MCN\_plant$(\bm{\theta},\dot{\bm{\theta}})$ $\to$ $\mathbf{M}_p,\mathbf{C}_p,\mathbf{N}_p$
-  \item Compute: $\ddot{\bm{\theta}} = \mathbf{M}_p^{-1}(\bm{\tau}_a - \mathbf{C}_p\dot{\bm{\theta}} - \mathbf{N}_p)$
-  \item Integrate: $\dot{\bm{\theta}} = \int \ddot{\bm{\theta}}\,dt$, $\bm{\theta} = \int \dot{\bm{\theta}}\,dt$
+  \item 调用 MCN\_plant$(\bm{\theta},\dot{\bm{\theta}})$ $\to$ $\mathbf{M}_p,\mathbf{C}_p,\mathbf{N}_p$
+  \item 计算：$\ddot{\bm{\theta}} = \mathbf{M}_p^{-1}(\bm{\tau}_a - \mathbf{C}_p\dot{\bm{\theta}} - \mathbf{N}_p)$
+  \item 积分：$\dot{\bm{\theta}} = \int \ddot{\bm{\theta}}\,dt$， $\bm{\theta} = \int \dot{\bm{\theta}}\,dt$
 \end{enumerate}
 \vspace{5pt}
 \end{minipage}}
-\caption{Complete computational flow of the control+simulation system.}
+\caption{控制+仿真系统的完整计算流程。}
 \label{fig:complete_flow}
 \end{figure}
 
 % ===================================================================
-\section{Expected Plots and Deliverables}
+\section{期望绘制的图表}
 % ===================================================================
 
-For your report, include the following figures:
+报告中需包含以下图形：
 
 \begin{enumerate}[leftmargin=*]
-  \item \textbf{Tracking performance (nominal case):} $\bm{\theta}(t)$ vs.\ $\bm{\theta}_d(t)$ for all 4 joints, plus tracking errors $\mathbf{e}(t)$.
-  \item \textbf{Control torques (nominal):} $\bm{\tau}(t)$ for all 4 joints.
-  \item \textbf{Robustness:} Tracking errors for $\delta = -10\%, -5\%, 0, +5\%, +10\%$ (overlaid or subplots).
-  \item \textbf{PD comparison:} Tracking performance of PD vs.\ computed torque (overlaid).
-  \item \textbf{Torque saturation:} Commanded vs.\ applied torque, and tracking error with/without saturation.
-  \item (Optional) \textbf{Anti-windup:} Comparison of tracking error with and without anti-windup under saturation.
+  \item \textbf{跟踪性能（标称情况）：} 全部 4 个关节的 $\bm{\theta}(t)$ vs.\ $\bm{\theta}_d(t)$，以及跟踪误差 $\mathbf{e}(t)$。
+  \item \textbf{控制力矩（标称）：} 全部 4 个关节的 $\bm{\tau}(t)$。
+  \item \textbf{鲁棒性：} $\delta = -10\%, -5\%, 0, +5\%, +10\%$ 的跟踪误差（叠加或子图）。
+  \item \textbf{PD 对比：} PD 与计算力矩的跟踪性能对比（叠加图）。
+  \item \textbf{力矩饱和：} 指令力矩 vs.\ 实际力矩，以及有/无饱和时的跟踪误差。
+  \item （选做）\textbf{抗 Windup：} 饱和条件下有/无抗 windup 的跟踪误差对比。
 \end{enumerate}
 
 % ===================================================================
-\section{Key Formulas Quick Reference}
+\section{核心公式速查}
 % ===================================================================
 
-\begin{conceptbox}[Computed Torque Control]
+\begin{conceptbox}[计算力矩控制]
 \[
 \bm{\tau} = \mathbf{M}(\bm{\theta})\bigl[\ddot{\bm{\theta}}_d + \mathbf{K}_v\dot{\mathbf{e}} + \mathbf{K}_p\mathbf{e}\bigr] + \mathbf{C}(\bm{\theta},\dot{\bm{\theta}})\dot{\bm{\theta}} + \mathbf{N}(\bm{\theta},\dot{\bm{\theta}})
 \]
@@ -897,58 +862,59 @@ For your report, include the following figures:
 \]
 \end{conceptbox}
 
-\begin{conceptbox}[PD Control with Gravity Compensation]
+\begin{conceptbox}[PD 控制 + 重力补偿]
 \[
 \bm{\tau} = \mathbf{K}_p\mathbf{e} + \mathbf{K}_v\dot{\mathbf{e}} + \mathbf{N}_{\text{grav}}(\bm{\theta})
 \]
 \end{conceptbox}
 
-\begin{conceptbox}[Forward Dynamics (Simulation)]
+\begin{conceptbox}[正动力学（仿真用）]
 \[
 \ddot{\bm{\theta}} = \mathbf{M}^{-1}(\bm{\theta})\bigl[\bm{\tau} - \mathbf{C}(\bm{\theta},\dot{\bm{\theta}})\dot{\bm{\theta}} - \mathbf{N}(\bm{\theta},\dot{\bm{\theta}})\bigr]
 \]
 \end{conceptbox}
 
-\begin{conceptbox}[Quintic Rounded Step]
+\begin{conceptbox}[五次圆角阶跃]
 \[
 r(t) = 10\left(\frac{t-t_0}{\Delta t}\right)^3 - 15\left(\frac{t-t_0}{\Delta t}\right)^4 + 6\left(\frac{t-t_0}{\Delta t}\right)^5
 \]
-for $t_0 < t < t_0+\Delta t$, with $t_0=1.0$\,s, $\Delta t=0.2$\,s.
+对于 $t_0 < t < t_0+\Delta t$，其中 $t_0=1.0$\,s，$\Delta t=0.2$\,s。
 \end{conceptbox}
 
 % ===================================================================
-\section{Troubleshooting Tips}
+\section{常见问题排查}
 % ===================================================================
 
-\begin{warningbox}[Common Pitfalls]
+\begin{warningbox}[常见陷阱]
 \begin{enumerate}[leftmargin=*]
-  \item \textbf{Algebraic loop:} If $\mathbf{M}$, $\mathbf{C}$, or $\mathbf{N}$ depend on $\ddot{\bm{\theta}}$, Simulink will report an algebraic loop. Ensure your MCN function takes only $(\bm{\theta},\dot{\bm{\theta}})$ as inputs (not $\ddot{\bm{\theta}}$).
-  \item \textbf{Dimension mismatch:} All signals are $4\times 1$ vectors. Use \texttt{Selector} blocks or \texttt{Demux}/\texttt{Mux} blocks carefully.
-  \item \textbf{Singular $\mathbf{M}$:} $\mathbf{M}(\bm{\theta})$ is always invertible for this manipulator. If you get a singular matrix warning, check your inertia parameters.
-  \item \textbf{MATLAB Function block dependencies:} Use \texttt{MCNsim.m} (self-contained) inside Simulink MATLAB Function blocks, not \texttt{MCN.m} (has external dependencies).
-  \item \textbf{Step size too large:} If the solver diverges, reduce the maximum step size in Configuration Parameters (try 1e-3 or smaller).
-  \item \textbf{Initial conditions:} The initial $\bm{\theta}$ must be set in the integrator blocks. The initial $\dot{\bm{\theta}}$ is typically zero.
+  \item \textbf{代数环（Algebraic Loop）：} 如果 $\mathbf{M}$、$\mathbf{C}$ 或 $\mathbf{N}$ 依赖于 $\ddot{\bm{\theta}}$，Simulink 将报代数环错误。确保你的 MCN 函数仅以 $(\bm{\theta},\dot{\bm{\theta}})$ 为输入（不包含 $\ddot{\bm{\theta}}$）。
+  \item \textbf{维度不匹配：} 所有信号均为 $4\times 1$ 向量。请小心使用 Selector 模块、Demux/Mux 模块。
+  \item \textbf{$\mathbf{M}$ 奇异：} 该机械臂的 $\mathbf{M}(\bm{\theta})$ 始终可逆。如果出现奇异矩阵警告，请检查惯性参数。
+  \item \textbf{MATLAB Function 模块依赖：} 在 Simulink MATLAB Function 模块内使用\ \texttt{MCNsim.m}\ （自包含版本），而非 \texttt{MCN.m}（有外部依赖）。
+  \item \textbf{步长过大：} 如果求解器发散，在 Configuration Parameters 中减小最大步长（建议尝试 1e-3 或更小）。
+  \item \textbf{初始条件：} 初始 $\bm{\theta}$ 必须在积分器模块中设置。初始 $\dot{\bm{\theta}}$ 通常为零。
+  \item \textbf{控制器/被控对象混淆：} 第 (b) 部分中，仅在 MCN\_plant（被控对象）中扰动参数，MCN\_ctrl（控制器）保持原值不变。
 \end{enumerate}
 \end{warningbox}
 
 % ===================================================================
-\section{Conclusion}
+\section{总结}
 % ===================================================================
 
-This homework demonstrates the full pipeline of robot control system design:
+本次作业涵盖了机器人控制系统设计的完整流程：
 
 \begin{enumerate}[leftmargin=*]
-  \item \textbf{Kinematic and dynamic modeling} using screw theory (product of exponentials) provides an elegant, coordinate-free formulation suitable for symbolic and numerical computation.
-  \item \textbf{Computed torque control} achieves perfect tracking when the model is exact, by exactly canceling the nonlinear dynamics and imposing linear error dynamics.
-  \item \textbf{Robustness} is the Achilles' heel of computed torque control --- parameter mismatch leads to non-zero tracking errors, motivating adaptive or robust control extensions.
-  \item \textbf{PD control} is simpler and more robust but sacrifices tracking performance due to uncompensated dynamic coupling.
-  \item \textbf{Actuator saturation} imposes practical limits that must be accounted for, potentially requiring anti-windup strategies.
+  \item \textbf{运动学与动力学建模}\ 采用旋量理论（指数积）方法，提供了一种优雅的、不依赖坐标系的公式化方法，适合符号和数值计算。
+  \item \textbf{计算力矩控制}\ 在模型精确时通过完全对消非线性动力学并施加线性误差动力学，实现完美跟踪。
+  \item \textbf{鲁棒性}\ 是计算力矩控制的致命弱点 --- 参数不匹配导致非零跟踪误差，这促使后续引入自适应或鲁棒控制扩展。
+  \item \textbf{PD 控制}\ 更简单、更鲁棒，但因未补偿的动态耦合而牺牲了跟踪性能。
+  \item \textbf{执行器饱和}\ 施加了必须考虑的实践限制，可能需要抗 windup 策略。
 \end{enumerate}
 
 \vspace{1cm}
 \begin{center}
 \rule{0.5\textwidth}{0.5pt}\\[5pt]
-\textit{End of Solution Guide}
+\textit{求解指南结束}
 \end{center}
 
 \end{document}

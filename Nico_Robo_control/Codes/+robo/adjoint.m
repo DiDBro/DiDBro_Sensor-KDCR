@@ -20,6 +20,6 @@ function Ad_g = adjoint(g)
     p = g(1:3, 4);
 
     % 构造伴随矩阵
-    Ad_g = [R,            hatm_sym(p) * R;
+    Ad_g = [R,            hatm(p) * R;
             zeros(3,3),   R               ];
 end

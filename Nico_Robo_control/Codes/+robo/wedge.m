@@ -3,6 +3,6 @@ function xi_wedge = wedge(xi)
     import robo.*
     v         = xi(1:3);
     omega     = xi(4:6);
-    omega_hat = hatm_sym(omega);
+    omega_hat = hatm(omega);
     xi_wedge  = [omega_hat, v(:); zeros(1,4)];
 end
