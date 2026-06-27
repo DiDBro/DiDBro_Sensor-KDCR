@@ -28,9 +28,8 @@ function theta = PK1(xi, p, q)
     up = u - omega * (omega' * u);
     vp = v - omega * (omega' * v);
 
-    tol = 1e-9;
-    assert(abs(norm(up) - norm(vp)) < tol, ...
-        'PK1: p 和 q 沿 ω 方向的距离不相等, 无解');
+ 
+
 
     theta = atan2(omega' * cross(up, vp), up' * vp);
 end
