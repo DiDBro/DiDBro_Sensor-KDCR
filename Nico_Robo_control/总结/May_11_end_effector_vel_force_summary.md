@@ -106,11 +106,9 @@ J_{st}^b(\theta) =
 $$
 
 其中：
-
 $$
 \xi_i^{\dagger} = \operatorname{Ad}_{g_{i,t}}^{-1} \, \xi_i
 $$
-
 $$
 g_{i,t} = e^{\hat{\xi}_i \theta_i} \, \cdots \, e^{\hat{\xi}_n \theta_n} \, g_{st}(0) \tag{3.55}
 $$
