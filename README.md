@@ -1,6 +1,8 @@
 # GTIIT 大四下 · 课程笔记与机器人学工具箱
 
 > 广东以色列理工学院（GTIIT）大四下学期课程资料汇总，含 **机器人学 MATLAB 函数库**、**传感器课程笔记**，以及考试复习材料。
+> 
+> 💡 **阅读建议**：仓库中的 `.md` 文件（笔记、总结）在 [Obsidian](https://obsidian.md/) 中打开可获得最佳阅读体验——双向链接、公式渲染、大纲导航等开箱即用。直接克隆仓库后用 Obsidian 打开根目录即可。
 
 ---
 
@@ -10,7 +12,8 @@
 ├── Nico_Robo_control/    ← 🔧 机器人学（核心，详见下文）
 ├── Sensor/               ← 📡 传感器课程（讲义 + 习题解答 + Jupyter 分析）
 ├── Coffee/               ← ☕ 咖啡机/磨豆机选购笔记
-└── slprj/                ← 🔧 Simulink 项目缓存
+├── slprj/                ← 🔧 Simulink 项目缓存
+└── 截图仓库/              ← 🖼️ 课程截图存档
 ```
 
 ---
@@ -19,21 +22,29 @@
 
 这是本仓库的核心，基于 **MLS**（*A Mathematical Introduction to Robotic Manipulation*, Murray, Li & Sastry）教材的完整 MATLAB 机器人学工具链，涵盖从运动学到动力学、再到计算力矩控制的全部内容。
 
+> ⚙️ **课程依赖**：本课程需要 **MATLAB + Simulink**（R2020a 及以上）。仓库中的代码（`+robo` 函数库、作业、仿真模型）覆盖了全部课程内容，可以跟随代码逐步学习。如有疑问欢迎联系：**dxiao9@jh.edu** 或 **微信: 13925852078**。
+
 ### 目录结构
 
 ```
 Nico_Robo_control/
-├── Codes/+robo/          ← ⭐ MATLAB 机器人学函数库（32+ 函数）
-├── 课件/                  ← 📖 课程讲义 PDF（15 份，覆盖全学期）
-├── 总结/                  ← 📝 每讲知识点总结（Markdown）
-├── notes/                ← ✍️ 手写/补充推导笔记 PDF
-├── 考试_2/               ← 📋 考试复习与模拟
-│   ├── Codes/            ←   作业代码（HW1–7）+ 过往试题
-│   ├── examB/            ←   Exam B 真题及解答
-│   └── 二阶系统/          ←   二阶系统 Simulink 控制仿真
-├── MLS_Chap2_p16_selfgen.pdf       ← 教材补充推导
-├── MLS_sets_tabulated.pdf          ← 关键结论速查表
-└── Murray Li and Sastry Robotics.pdf ← 教材全文
+├── Codes/+robo/                         ← ⭐ MATLAB 机器人学函数库（32 个函数）
+├── 课件/                                 ← 📖 课程讲义 PDF（15 份，覆盖全学期）
+├── 总结/                                 ← 📝 每讲知识点总结（Markdown）
+├── notes/                               ← ✍️ 手写/补充推导笔记 PDF
+├── 考试_2/                              ← 📋 考试复习资料
+│   ├── Codes/                           ←   作业代码（HW1–7）+ 过往试题
+│   └── 二阶系统/                         ←   二阶系统 Simulink 控制仿真
+├── exam_A_2025/                         ← 📄 2025 年 Exam A 真题及解答（7 份 PDF）
+├── examB/                               ← 📄 Exam B 真题、解答及 MATLAB/Simulink 代码
+├── Exam_A_2026/                         ← 📄 2026 年 Exam A
+│   ├── *.xlsx                           ←   数据表格（q2adat, q2bdat 等）
+│   ├── rounded_step_gen.m / .py         ←   圆角阶跃信号生成（MATLAB / Python）
+│   ├── rounded_step_tesing.mlx / .ipynb / .py  ← 测试与仿真（MATLAB Live / Jupyter / Python）
+│   └── rounded_step_tesing_sim.slx      ←   Simulink 模型
+├── RA_Concept_Review_CN_EN.pdf          ← 📘 机器人学概念速查（中英双语）
+├── MLS_sets_tabulated.pdf               ← 📋 关键结论公式速查表
+└── Murray Li and Sastry Robotics.pdf    ← 📗 MLS 教材全文
 ```
 
 ### ⭐ `+robo` 函数库快速上手
@@ -73,18 +84,29 @@ tau = robo.computedTorque(theta_d, thetad_d, thetadd_d, theta, thetad, ...
 | **动力学** | `newtonEuler`, `inertiaTransform`, `gravityWrench`, `inertiaMatrix`, `inverseDynamics`, `forwardDynamics` | Newton-Euler、惯性变换、重力旋量、M/C/N 组装、正/逆动力学 |
 | **控制** | `computedTorque` | 计算力矩控制器 (CTC) |
 
+### 考试资料导航
+
+| 目录 | 年份 | 内容 |
+|------|------|------|
+| `exam_A_2025/` | 2025 | Exam A 真题试卷 + 7 份解答 PDF（含 wrench、指数映射、逆运动学等题解） |
+| `examB/` | — | Exam B 真题试卷 + 5 道大题解答（MLX/SLX/MATLAB）+ 标准答案 |
+| `Exam_A_2026/` | 2026 | Exam A 数据与仿真代码（Python/MATLAB/Simulink 多版本）+ 阶跃信号生成与测试 |
+| `考试_2/Codes/` | — | Homework 1–7 + Tutorial 作业 + 2025 Final A 真题 |
+
 ### 学习路线建议
 
 1. **入门**：阅读 `课件/` 中的讲义 PDF，按时间顺序（March → April → May → June）
 2. **动手**：配合 `总结/` 中的 Markdown 总结，在 MATLAB 中运行 `Codes/+robo/` 的函数
 3. **深入**：查看 `notes/` 中的手写推导笔记，理解关键公式（Rodrigues、指数映射、动力学）
-4. **实战**：运行 `考试_2/Codes/` 中的作业代码（HW1–7）
-5. **冲刺**：使用 `考试_2/` 中的往年真题及 `MLS_sets_tabulated.pdf` 速查表备考
+4. **速查**：打印 `MLS_sets_tabulated.pdf`（公式表）+ `RA_Concept_Review_CN_EN.pdf`（中英概念对照）备考
+5. **实战**：运行 `考试_2/Codes/` 中的作业代码（HW1–7）
+6. **冲刺**：做 `exam_A_2025/`、`examB/`、`Exam_A_2026/` 中的历年真题
 
 ### 依赖
 
 - **MATLAB R2020a+**（需支持 package 文件夹机制，即以 `+` 前缀命名的文件夹）
-- Simulink（仅 `考试_2/二阶系统/` 中的二阶系统控制仿真需要）
+- **Python 3.8+**（`Exam_A_2026/` 中的 `rounded_step_tesing.ipynb` 和 `.py` 脚本需要 `numpy`, `matplotlib`, `pandas`, `openpyxl`）
+- Simulink（`考试_2/二阶系统/` 和 `Exam_A_2026/` 中的 Simulink 仿真需要）
 
 ### 约定
 
@@ -100,7 +122,7 @@ tau = robo.computedTorque(theta_d, thetad_d, thetadd_d, theta, thetad, ...
 
 ## 📡 Sensor — 传感器课程
 
-JHU/GTIIT 传感器原理课程资料：
+JHU/GTIIT 传感器原理课程资料。⚠️ **注意**：课程 Project（`Sensor_prij/`）完成度一般，建议仅作补充参考，不要以此为主要学习依据。
 
 | 目录 | 内容 |
 |------|------|
