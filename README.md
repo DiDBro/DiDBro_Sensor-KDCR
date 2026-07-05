@@ -108,15 +108,15 @@ tau = robo.computedTorque(theta_d, thetad_d, thetadd_d, theta, thetad, ...
 - **Python 3.8+**（`Exam_A_2026/` 中的 `rounded_step_tesing.ipynb` 和 `.py` 脚本需要 `numpy`, `matplotlib`, `pandas`, `openpyxl`）
 - Simulink（`考试_2/二阶系统/` 和 `Exam_A_2026/` 中的 Simulink 仿真需要）
 
-### 约定
+### 限制
 
-| 约定 | 说明 |
+| 限制 | 说明 |
 |------|------|
 | 角度单位 | 全部使用**弧度**（rad） |
 | Twist 顺序 | `ξ = [v₁, v₂, v₃, ω₁, ω₂, ω₃]ᵀ`（线速度在前） |
 | Wrench 顺序 | `F = [f₁, f₂, f₃, τ₁, τ₂, τ₃]ᵀ`（力在前） |
 | 旋转轴 | 输入前须归一化（`‖ω‖ = 1`） |
-| 容差 | 大部分函数在 `1e-12` 量级判断退化情况 |
+
 
 ---
 
