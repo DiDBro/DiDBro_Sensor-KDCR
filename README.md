@@ -150,5 +150,5 @@ MIT License — 详见 [LICENSE](LICENSE) 文件。
 
 - **MLS 教材**：*A Mathematical Introduction to Robotic Manipulation* — Murray, Li & Sastry
 - **GTIIT**：广东以色列理工学院机械工程系机器人学课程
-- **特别鸣谢**：Last Semester 仍然在 106 认真学（摸）习（鱼）并且互相提供帮助的同学们 —— Qi Zhang、Bowen Cheng、Weijian Yin、Yufei Wang、Boyan Zhang、Zhenyuan Chen 🍻
+- **特别鸣谢**：Last Semester 仍然在 106 认真学（摸）习（鱼）并且互相提供帮助的同学们 —— Qi Zhang、Bowen Cheng、Chuyang Du、Weijian Yin、Yufei Wang、Boyan Zhang、Zhenyuan Chen 🍻
 - 所有讲义、作业与考试的著作权归课程教师所有；`+robo` 函数库为个人学习过程中的独立实现
