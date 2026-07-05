@@ -1,4 +1,4 @@
-# GTIIT 大四下 · 课程笔记与机器人学工具箱
+# GTIIT 大四下 · Kine. DYN. Control of robots & Sensor
 
 > 广东以色列理工学院（GTIIT）大四下学期课程资料汇总，含 **机器人学 MATLAB 函数库**、**传感器课程笔记**，以及考试复习材料。
 > 
