@@ -1,4 +1,4 @@
-# GTIIT 大四下 · 课程笔记与机器人学工具箱
+# GTIIT 大四下 · Kine. DYN. Control of robots & Sensor
 
 > 广东以色列理工学院（GTIIT）大四下学期课程资料汇总，含 **机器人学 MATLAB 函数库**、**传感器课程笔记**，以及考试复习材料。
 > 
@@ -109,15 +109,15 @@ tau = computedTorque(theta_d, thetad_d, thetadd_d, theta, thetad, ...
 - **Python 3.8+**（`Exam_A_2026/` 中的 `rounded_step_tesing.ipynb` 和 `.py` 脚本需要 `numpy`, `matplotlib`, `pandas`, `openpyxl`）
 - Simulink（`考试_2/二阶系统/` 和 `Exam_A_2026/` 中的 Simulink 仿真需要）
 
-### 约定
+### 限制
 
-| 约定 | 说明 |
+| 限制 | 说明 |
 |------|------|
 | 角度单位 | 全部使用**弧度**（rad） |
 | Twist 顺序 | `ξ = [v₁, v₂, v₃, ω₁, ω₂, ω₃]ᵀ`（线速度在前） |
 | Wrench 顺序 | `F = [f₁, f₂, f₃, τ₁, τ₂, τ₃]ᵀ`（力在前） |
 | 旋转轴 | 输入前须归一化（`‖ω‖ = 1`） |
-| 容差 | 大部分函数在 `1e-12` 量级判断退化情况 |
+
 
 ---
 
@@ -151,5 +151,5 @@ MIT License — 详见 [LICENSE](LICENSE) 文件。
 
 - **MLS 教材**：*A Mathematical Introduction to Robotic Manipulation* — Murray, Li & Sastry
 - **GTIIT**：广东以色列理工学院机械工程系机器人学课程
-- **特别鸣谢**：Last Semester 仍然在 106 认真学（摸）习（鱼）并且互相提供帮助的同学们 —— Qi Zhang、Bowen Cheng、Weijian Yin、Yufei Wang、Boyan Zhang、Zhenyuan Chen 🍻
+- **特别鸣谢**：Last Semester 仍然在 106 认真学（摸）习（鱼）并且互相提供帮助的同学们 —— Qi Zhang、Bowen Cheng、Chuyang Du、Weijian Yin、Yufei Wang、Boyan Zhang、Zhenyuan Chen 🍻
 - 所有讲义、作业与考试的著作权归课程教师所有；`+robo` 函数库为个人学习过程中的独立实现
