@@ -49,26 +49,27 @@ Nico_Robo_control/
 
 ### ⭐ `+robo` 函数库快速上手
 
-`+robo` 是一个 MATLAB **package**，使用时需以 `robo.xxx()` 方式调用。将 `Nico_Robo_control/Codes/` 添加到 MATLAB 路径后即可使用：
+`+robo` 是一个 MATLAB **package**。将 `Nico_Robo_control/Codes/` 添加到 MATLAB 路径后，通过 `import robo.*` 导入即可直接调用所有函数（无需 `robo.` 前缀）：
 
 ```matlab
 addpath('Nico_Robo_control/Codes/');
+import robo.*   % 导入包，之后可直接使用函数名调用
 
 % 示例 1：构建旋转矩阵
-R = robo.rodrigues([0; 0; 1], pi/4);   % 绕 z 轴旋转 45°
+R = rodrigues([0; 0; 1], pi/4);   % 绕 z 轴旋转 45°
 
 % 示例 2：正运动学 (POE)
-g = robo.gtwist(xi1, theta1) * robo.gtwist(xi2, theta2) * gst0;
+g = gtwist(xi1, theta1) * gtwist(xi2, theta2) * gst0;
 
 % 示例 3：计算雅可比
-[Js, Jb] = robo.jacobian(xis, thetas, gst0);
+[Js, Jb] = jacobian(xis, thetas, gst0);
 
 % 示例 4：逆动力学
-tau = robo.inverseDynamics(thetadd_d, thetad, theta, xi, calMp, lM, beta);
+tau = inverseDynamics(thetadd_d, thetad, theta, xi, calMp, lM, beta);
 
 % 示例 5：计算力矩控制 (CTC)
-tau = robo.computedTorque(theta_d, thetad_d, thetadd_d, theta, thetad, ...
-                          xi, calMp, lM, beta);
+tau = computedTorque(theta_d, thetad_d, thetadd_d, theta, thetad, ...
+                     xi, calMp, lM, beta);
 ```
 
 ### 函数一览（32 个）
